@@ -25,7 +25,7 @@
 #include "stdarg.h"
 #include "stdio.h"
 
-static void printSerial(uint8_t *txt){
+static void printSerialOut(uint8_t *txt){
   //print out at uart1 and uart4 out
     HAL_UART_Transmit(&huart4, txt, strlen(txt), 100);
     HAL_UART_Transmit(&huart1, txt, strlen(txt), 100);
@@ -200,12 +200,12 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void printSerialWrap(const char* msg, ...){
+void printSerial(const char* msg, ...){
     va_list ap;
     char buffer[256];
     va_start(ap, msg);
     vsnprintf(buffer, 256, msg, ap);
     va_end(ap);
-    printSerial(buffer);
+    printSerialOut(buffer);
 }
 /* USER CODE END 1 */

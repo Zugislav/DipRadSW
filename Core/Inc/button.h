@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    usart.h
+  * @file    gpio.h
   * @brief   This file contains all the function prototypes for
-  *          the usart.c file
+  *          the gpio.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __GPIO_H__
+#define __GPIO_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,28 +29,34 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
+#include "spi.h"
+#include "tim.h"
+#include "usart.h"
+#include "usb_device.h"
+#include "gpio.h"
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "cmsis_os2.h"
+#include "task.h"
+#include "queue.h"
+#include "usart.h"
+#include "usb_device.h"
+#include "stdbool.h"
 /* USER CODE END Includes */
-
-extern UART_HandleTypeDef huart4;
-
-extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_UART4_Init(void);
-void MX_USART1_UART_Init(void);
+void ButtonHandle(uint16_t GPIO_Pin);
 
 /* USER CODE BEGIN Prototypes */
-void printSerial(const char* msg, ...);
 
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __USART_H__ */
+#endif /*__ GPIO_H__ */
 
