@@ -36,9 +36,22 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-Core/Src/ILI9341/ILI9341_GFX.c \
-Core/Src/ILI9341/ILI9341_STM32_Driver.c \
-Core/Src/ILI9341/ILI9341_Touchscreen.c \
+Core/Src/ILI9341/HardwareControl/ILI9341.c \
+Core/Src/ILI9341/HardwareControl/TSC2046.c \
+Core/Src/ILI9341/LCDTools/Encoder_frame.c \
+Core/Src/ILI9341/LCDTools/Information_ok_dialog.c \
+Core/Src/ILI9341/LCDTools/Keyboard_frame.c \
+Core/Src/ILI9341/LCDTools/Keyboard_logic.c \
+Core/Src/ILI9341/LCDTools/LCD.c \
+Core/Src/ILI9341/LCDTools/Main_frame.c \
+Core/Src/ILI9341/LCDTools/Main_logic.c \
+Core/Src/ILI9341/LCDTools/Numpad_frame.c \
+Core/Src/ILI9341/LCDTools/Numpad_logic.c \
+Core/Src/ILI9341/LCDTools/One_button_logic.c \
+Core/Src/ILI9341/LCDTools/Question_yes_no.c \
+Core/Src/ILI9341/LCDTools/Touch_calibration_screen_message_frame.c \
+Core/Src/ILI9341/LCDTools/Two_button_logic.c \
+Core/Src/ILI9341/LCDTools/printf.c \
 Core/Src/button.c \
 Core/Src/encoder.c \
 Core/Src/freertos.c \
@@ -164,7 +177,8 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
--ICore/Src/ILI9341 \
+-ICore/Src/ILI9341/HardwareControl \
+-ICore/Src/ILI9341/LCDTools \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \

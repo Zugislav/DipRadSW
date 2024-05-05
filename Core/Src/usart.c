@@ -24,11 +24,16 @@
 #include "string.h"
 #include "stdarg.h"
 #include "stdio.h"
+#include "FreeRTOS.h"
+#include "cmsis_os2.h"
+
+extern osMutexId_t printMutexHandle;
 
 static void printSerialOut(uint8_t *txt){
   //print out at uart1 and uart4 out
-    HAL_UART_Transmit(&huart4, txt, strlen(txt), 100);
-    HAL_UART_Transmit(&huart1, txt, strlen(txt), 100);
+  uint16_t textLen = strlen(txt);
+    HAL_UART_Transmit(&huart4, txt, textLen, 100);
+    HAL_UART_Transmit(&huart1, txt, textLen, 100);
     return;
 }
 /* USER CODE END 0 */
@@ -201,11 +206,13 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 void printSerial(const char* msg, ...){
+  if(osMutexAcquire(printMutexHandle, 500 ) != osOK){
     va_list ap;
     char buffer[256];
     va_start(ap, msg);
     vsnprintf(buffer, 256, msg, ap);
     va_end(ap);
-    printSerialOut(buffer);
+    printSerialOut((uint8_t*)buffer);
+  }
 }
 /* USER CODE END 1 */

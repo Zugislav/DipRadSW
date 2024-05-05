@@ -121,12 +121,6 @@ void Error_Handler(void);
 #define GPIO15_GPIO_Port GPIOD
 #define GPIO16_Pin GPIO_PIN_15
 #define GPIO16_GPIO_Port GPIOD
-#define T_CLK_Pin GPIO_PIN_10
-#define T_CLK_GPIO_Port GPIOC
-#define T_MISO_Pin GPIO_PIN_11
-#define T_MISO_GPIO_Port GPIOC
-#define T_MOSI_Pin GPIO_PIN_12
-#define T_MOSI_GPIO_Port GPIOC
 #define GPIO1_Pin GPIO_PIN_0
 #define GPIO1_GPIO_Port GPIOD
 #define GPIO2_Pin GPIO_PIN_1

@@ -102,6 +102,8 @@ int main(void)
   MX_TIM1_Init();
   MX_UART4_Init();
   MX_USART1_UART_Init();
+  MX_SPI3_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

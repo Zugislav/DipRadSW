@@ -46,12 +46,21 @@ extern "C" {
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
+#define ENCODER_PULSES_PER_ROTATION 24
 
 /* USER CODE END Private defines */
-
-void encoderUpdate(uint32_t uTicks);
-
 /* USER CODE BEGIN Prototypes */
+typedef struct{
+	uint8_t dir;
+	uint16_t cnt1, cnt2, diff, speed, one_rotation_pulses;
+	uint32_t tick;
+	TIM_HandleTypeDef* htim;
+}encoderHandle;
+
+void Encoder_init(encoderHandle *encoder, TIM_HandleTypeDef *htim, uint16_t one_rotation_pulses);
+void Encoder_count(encoderHandle *encoder);
+float Encoder_getSpeed(encoderHandle *encoder);
+uint16_t Encoder_getDifference(encoderHandle *encoder);
 
 /* USER CODE END Prototypes */
 

@@ -43,7 +43,10 @@ enum IRQType{
     BUTTON3_IRQ,
     BUTTON4_IRQ,
     BUTTON5_IRQ,
-    BUTTON6_IRQ
+    BUTTON6_IRQ,
+    ENCODER_IRQ,
+    TOUCHPAD_IRQ,
+    LCD_IRQ
 };
 /* USER CODE END Prototypes */
 

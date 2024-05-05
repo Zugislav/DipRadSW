@@ -2,30 +2,32 @@
 #include "main.h"
 #include "button.h"
 #include "message.h"
+#include "cmsis_os2.h"
 
+extern osThreadId_t ButtonTaskHandlHandle;
 extern osMessageQueueId_t mainQueueHandle;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart1;
 
-void ButtonHandle(uint16_t GPIO_Pin){
+void ButtonProcess(uint16_t GPIO_Pin){
   switch(GPIO_Pin){
-	case Button1_Pin:
-		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+	case BUTTON1_IRQ:
+		HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
 		break;
-	case Button2_Pin:
-		HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+	case BUTTON2_IRQ:
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 		break;
-	case Button3_Pin:
-		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+	case BUTTON3_IRQ:
+		HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET);
 		break;
-	case Button4_Pin:
-		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+	case BUTTON4_IRQ:
+		HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_SET);
 		break;
-	case Button5_Pin:
-		HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
+	case BUTTON5_IRQ:
+		HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, GPIO_PIN_SET);
 		break;
-	case Button6_Pin:
-		HAL_GPIO_TogglePin(LED6_GPIO_Port, LED6_Pin);
+	case BUTTON6_IRQ:
+		HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, GPIO_PIN_SET);
 		break;
 	default:
 		return;
@@ -41,39 +43,40 @@ void ButtonHandle(uint16_t GPIO_Pin){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   BaseType_t hptw = pdFALSE;
-  int button;
+  int button = 0;
   switch(GPIO_Pin){
 	case Button1_Pin:
-		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 		button = BUTTON1_IRQ;
-		xQueueSendFromISR(mainQueueHandle, &button, &hptw);
+		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
 		break;
 	case Button2_Pin:
-		HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 		button = BUTTON2_IRQ;
-		xQueueSendFromISR(mainQueueHandle,&button, &hptw);
+		HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
 		break;
 	case Button3_Pin:
-		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		button = BUTTON3_IRQ;
-		xQueueSendFromISR(mainQueueHandle, &button, &hptw);
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
 		break;
 	case Button4_Pin:
-		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
 		button = BUTTON4_IRQ;
-		xQueueSendFromISR(mainQueueHandle, &button, &hptw);
+		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
 		break;
 	case Button5_Pin:
-		HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
 		button = BUTTON5_IRQ;
-		xQueueSendFromISR(mainQueueHandle, &button, &hptw);
+		HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
 		break;
 	case Button6_Pin:
-		HAL_GPIO_TogglePin(LED6_GPIO_Port, LED6_Pin);
 		button = BUTTON6_IRQ;
-		xQueueSendFromISR(mainQueueHandle, &button, &hptw);
-		break;
+		HAL_GPIO_TogglePin(LED6_GPIO_Port, LED6_Pin);
+		xTaskNotifyFromISR(ButtonTaskHandlHandle, button, eSetValueWithOverwrite, &hptw);
+		break; 
 	default:
 		return;
 	}
+
 }

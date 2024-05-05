@@ -49,7 +49,7 @@ extern "C" {
 
 /* USER CODE END Private defines */
 
-void ButtonHandle(uint16_t GPIO_Pin);
+void ButtonProcess(uint16_t GPIO_Pin);
 
 /* USER CODE BEGIN Prototypes */
 

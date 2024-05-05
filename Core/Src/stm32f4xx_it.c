@@ -22,6 +22,14 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "message.h"
+#include "FreeRTOS.h"
+#include "cmsis_os2.h"
+#include "queue.h"
+
+extern osMessageQueueId_t mainQueueHandle;
+
+volatile uint16_t encoder_count = 0;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -284,7 +292,6 @@ void TIM1_BRK_TIM9_IRQHandler(void)
 void TIM1_UP_TIM10_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
-
   /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */

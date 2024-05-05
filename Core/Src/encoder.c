@@ -3,43 +3,69 @@
 #include "encoder.h"
 #include "message.h"
 
-/* Defines ------------------------------------------------------------------*/
-#define ENCODER_MAX_VALUE 1024
+/*
+ * Use a timer and select combined channels -> Encoder Mode.
+ * Then select our prescaler and the counter period
+ * Then select Encoder Mode TI1 and TI2.
+ * Leave the rest as default
+ */
 
-extern TIM_HandleTypeDef htim1;
-
-uint16_t m_uValueOld;         //Stores the previous timer counter value
-uint16_t m_uValueNew;         //Stores the current timer counter value
-int16_t m_iValue;             //Stores the difference in between the previous and current timer counter values
-uint16_t m_uAccel;            //Stores the acceleration value of the encoder (how fast the encoder is being rotated)
-
-void encoderUpdate(){
-
-		uint16_t uTicks = HAL_GetTick();
-		m_uValueOld = m_uValueNew;                        //Store previous current value into old value
-		m_uValueNew = __HAL_TIM_GET_COUNTER(&htim1);  //Update current value from Timer's counter register
-
-		//The following code is used to determine if the encoder has been moved in a clockwise or counter-clockwise rotation,
-		//while also taking into account whether the counter register value has wrapped around
-		uint16_t uDiffA;
-		uint16_t uDiffB;
-		bool bValComp = (m_uValueNew < m_uValueOld);
-		if (bValComp) {
-			uDiffA = m_uValueOld - m_uValueNew;
-			uDiffB = m_uValueNew + (ENCODER_MAX_VALUE - m_uValueOld);
-		} else {
-			uDiffA = m_uValueNew - m_uValueOld;
-			uDiffB = m_uValueOld + (ENCODER_MAX_VALUE - m_uValueNew);
-		}
-		uint16_t uDiff = (uDiffA < uDiffB) ? uDiffA : uDiffB;
-		m_iValue += (bValComp ? 0-uDiff : uDiff);
-
-		//Calculate encoder acceleration value
-		m_uAccel = uDiff * 1000 / uTicks;
+void Encoder_init(encoderHandle *encoder, TIM_HandleTypeDef *htim, uint16_t one_rotation_pulses) {
+	encoder->htim = htim;
+	encoder->one_rotation_pulses = one_rotation_pulses;
 }
 
+void Encoder_count(encoderHandle *encoder) {
+	if (HAL_GetTick() - encoder->tick > 1000L) {
+		/* Control TIM for every check_every_ms */
+		encoder->cnt2 = encoder->htim->Instance->CNT;
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
-    //value koji trebamo htim->Instance->CNT;
-    return;
+		/* Control the rotation count */
+		if (__HAL_TIM_IS_TIM_COUNTING_DOWN(encoder->htim)) {
+			encoder->dir = 1;
+			/* __HAL_TIM_IS_TIM_COUNTING_DOWN Exception when the macro is wrong configured */
+			if ((encoder->cnt2 > encoder->cnt1) && (encoder->cnt2 - encoder->cnt1 < 100))
+				encoder->dir = 0;
+		} else {
+			encoder->dir = 0;
+			/* __HAL_TIM_IS_TIM_COUNTING_DOWN Excepting when the macro gives error */
+			if ((encoder->cnt1 > encoder->cnt2) && (encoder->cnt1 - encoder->cnt2 < 100))
+				encoder->dir = 1;
+		}
+
+		if (encoder->dir) {
+			/* Down Counting */
+			if (encoder->cnt1 >= encoder->cnt2)
+				encoder->diff = encoder->cnt1 - encoder->cnt2;
+			else
+				encoder->diff = (encoder->htim->Instance->ARR + encoder->cnt1) - encoder->cnt2;
+		} else {
+			/* Up Counting */
+			if (encoder->cnt2 >= encoder->cnt1)
+				encoder->diff = encoder->cnt2 - encoder->cnt1;
+			else
+				encoder->diff = (encoder->htim->Instance->ARR + encoder->cnt2) - encoder->cnt1;
+		}
+
+		if ((encoder->htim->Instance->SMCR & 0x03) == 0x03) {
+			/* X4 Mode Countering increase with 4 Pulse */
+			encoder->speed = encoder->diff * 60 / 4 / encoder->one_rotation_pulses; //RPM x 60
+		} else {
+			/* X4 Mode Countering increase with 2 Pulse */
+			encoder->speed = encoder->diff * 60 / 2 / encoder->one_rotation_pulses; //RPM x 60
+		}
+
+		encoder->tick = HAL_GetTick();
+		encoder->cnt1 = encoder->htim->Instance->CNT;
+	}
+}
+
+// Get the speed and also the direction - Unit: RPM*one_rotation_pulses
+float Encoder_getSpeed(encoderHandle *encoder){
+	return encoder->dir == 1 ? (float) encoder->speed : -((float) encoder->speed);
+}
+
+// Get the difference for every check
+uint16_t Encoder_getDifference(encoderHandle *encoder){
+	return encoder->diff;
 }

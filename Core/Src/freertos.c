@@ -25,10 +25,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "encoder.h"
+#include "button.h"
 #include "queue.h"
 #include "stm32f407xx.h"
 #include "gpio.h"
 #include "usart.h"
+#include "message.h"
+#include "limits.h"
+#include "Touch_screen.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,8 +58,10 @@ extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart1;
 
 extern TIM_HandleTypeDef htim1;
+static encoderHandle encoder = {0};
 
-extern osMessageQueueId_t mainQueueHandle;
+extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef hspi3;
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -63,24 +71,25 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for LCDTask */
-osThreadId_t LCDTaskHandle;
-const osThreadAttr_t LCDTask_attributes = {
-  .name = "LCDTask",
+/* Definitions for LCDTaskHandle */
+// maybe put osPriorityHigh if task is going to be used a lot
+osThreadId_t LCDTaskHandleHandle;
+const osThreadAttr_t LCDTaskHandle_attributes = {
+  .name = "LCDTaskHandle",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for EncoderTask */
-osThreadId_t EncoderTaskHandle;
-const osThreadAttr_t EncoderTask_attributes = {
-  .name = "EncoderTask",
+/* Definitions for EncoderTaskHand */
+osThreadId_t EncoderTaskHandHandle;
+const osThreadAttr_t EncoderTaskHand_attributes = {
+  .name = "EncoderTaskHand",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for ButtonTask */
-osThreadId_t ButtonTaskHandle;
-const osThreadAttr_t ButtonTask_attributes = {
-  .name = "ButtonTask",
+/* Definitions for ButtonTaskHandl */
+osThreadId_t ButtonTaskHandlHandle;
+const osThreadAttr_t ButtonTaskHandl_attributes = {
+  .name = "ButtonTaskHandl",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -101,9 +110,9 @@ const osMutexAttr_t printMutex_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void LCDHandle(void *argument);
-void EncoderHandle(void *argument);
-void ButtonHandle(void *argument);
+void LCDTask(void *argument);
+void EncoderTask(void *argument);
+void ButtonTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -145,14 +154,14 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of LCDTask */
-  LCDTaskHandle = osThreadNew(LCDHandle, NULL, &LCDTask_attributes);
+  /* creation of LCDTaskHandle */
+  LCDTaskHandleHandle = osThreadNew(LCDTask, NULL, &LCDTaskHandle_attributes);
 
-  /* creation of EncoderTask */
-  EncoderTaskHandle = osThreadNew(EncoderHandle, NULL, &EncoderTask_attributes);
+  /* creation of EncoderTaskHand */
+  EncoderTaskHandHandle = osThreadNew(EncoderTask, NULL, &EncoderTaskHand_attributes);
 
-  /* creation of ButtonTask */
-  ButtonTaskHandle = osThreadNew(ButtonHandle, NULL, &ButtonTask_attributes);
+  /* creation of ButtonTaskHandl */
+  ButtonTaskHandlHandle = osThreadNew(ButtonTask, NULL, &ButtonTaskHandl_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -174,77 +183,122 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
+  
   /* USER CODE BEGIN StartDefaultTask */
-
   // Create the container (queue) for data
   /* Infinite loop */
   for(;;)
   {
     /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-    HAL_UART_Transmit(&huart4, "Hello world!\r\n", 13, 200);
-    HAL_Delay(100);
-    HAL_UART_Transmit(&huart1, "Hello world!\r\n", 14, 200);
-    HAL_Delay(100);
+ /*   if(xQueueReceive(mainQueueHandle, &buffer, 200) == pdTRUE ){
+      if(buffer >= BUTTON1_IRQ && buffer <= BUTTON6_IRQ){
+        printSerial("Button IRQ\r\n");
+        xTaskNotify(ButtonTask, (uint32_t)buffer, eSetValueWithOverwrite);
+      }
+      else if(buffer == ENCODER_IRQ){
+        xTaskNotify(EncoderTask, 0, eNoAction);
+        printSerial("Encoder IRQ\r\n");
+      }
+      else if(buffer == LCD_IRQ){
+        //LCDHandle();
+        printSerial("LCD IRQ\r\n");
+      }
+      else if (buffer == TOUCHPAD_IRQ){
+        //TouchpadHandle(buffer[0]);
+        printSerial("Touchpad IRQ\r\n");
+      }
+      else {
+        printSerial("Invalid IRQ\r\n");
+      }
+    }
+    */
+    /* USER CODE BEGIN 3
+    HAL_UART_Transmit(&huart4, "Hello world1!\r\n", 14, 200);
+    osDelay(100);
+    HAL_UART_Transmit(&huart1, "Hello world2!\r\n", 15, 200);
+    osDelay(100);
+     */
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
 }
 
-/* USER CODE BEGIN Header_LCDHandle */
+/* USER CODE BEGIN Header_LCDTask */
 /**
-* @brief Function implementing the LCDTask thread.
+* @brief Function implementing the LCDTaskHandle thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_LCDHandle */
-void LCDHandle(void *argument)
+/* USER CODE END Header_LCDTask */
+void LCDTask(void *argument)
 {
-  /* USER CODE BEGIN LCDHandle */
+  /* USER CODE BEGIN LCDTask */
+
+  /* Check if we touch at the screen */
+  STM32_PLC_LCD(&hspi1, &hspi3, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
+
   /* Infinite loop */
+
+  uint8_t frame_id = 0;
+  STM32_PLC_LCD_Show_Main_Frame(&frame_id, false);
+
   for(;;)
   {
-    osDelay(1);
+    STM32_PLC_LCD_Call_Main_Logic(&frame_id);
+    osDelay(50);
   }
-  /* USER CODE END LCDHandle */
+  /* USER CODE END LCDTask */
 }
 
-/* USER CODE BEGIN Header_EncoderHandle */
+/* USER CODE BEGIN Header_EncoderTask */
 /**
-* @brief Function implementing the EncoderTask thread.
+* @brief Function implementing the EncoderTaskHand thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_EncoderHandle */
-void EncoderHandle(void *argument)
+/* USER CODE END Header_EncoderTask */
+void EncoderTask(void *argument)
 {
-  /* USER CODE BEGIN EncoderHandle */
+  /* USER CODE BEGIN EncoderTask */
   /* Infinite loop */
-  for(;;)
-  {
+  Encoder_init(&encoder, &htim1, ENCODER_PULSES_PER_ROTATION);
+	float speed = 0;
+	float difference = 0;
+	for(;;)
+	{
+		Encoder_count(&encoder);
+		speed = Encoder_getSpeed(&encoder)/ENCODER_PULSES_PER_ROTATION; //Unit: RPM
+		difference = Encoder_getDifference(&encoder);
+    //difference = 10;
     osDelay(1);
-  }
-  /* USER CODE END EncoderHandle */
+	}
+  /* USER CODE END EncoderTask */
 }
 
-/* USER CODE BEGIN Header_ButtonHandle */
+/* USER CODE BEGIN Header_ButtonTask */
 /**
-* @brief Function implementing the ButtonTask thread.
+* @brief Function implementing the ButtonTaskHandl thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_ButtonHandle */
-void ButtonHandle(void *argument)
+/* USER CODE END Header_ButtonTask */
+void ButtonTask(void *argument)
 {
-  /* USER CODE BEGIN ButtonHandle */
+  /* USER CODE BEGIN ButtonTask */
+  uint32_t uValue;
   /* Infinite loop */
   for(;;)
   {
+        // Wait for a notification and get the notification value
+    if(xTaskNotifyWait(0, ULONG_MAX, &uValue, 100) == pdPASS)
+    {
+      printSerial("Button %d IRQ\r\n", uValue);
+      ButtonProcess(uValue);
+      //in buttonHandle also set some thing to have it displaied on the LCD
+    }
     osDelay(1);
   }
-  /* USER CODE END ButtonHandle */
+  /* USER CODE END ButtonTask */
 }
 
 /* Private application code --------------------------------------------------*/
