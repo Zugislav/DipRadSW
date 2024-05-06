@@ -97,6 +97,7 @@ void Error_Handler(void);
 #define LED6_GPIO_Port GPIOE
 #define EN_SW_Pin GPIO_PIN_11
 #define EN_SW_GPIO_Port GPIOB
+#define EN_SW_EXTI_IRQn EXTI15_10_IRQn
 #define SD_NSS_Pin GPIO_PIN_12
 #define SD_NSS_GPIO_Port GPIOB
 #define SD_SCK_Pin GPIO_PIN_13

@@ -72,24 +72,23 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for LCDTaskHandle */
-// maybe put osPriorityHigh if task is going to be used a lot
 osThreadId_t LCDTaskHandleHandle;
 const osThreadAttr_t LCDTaskHandle_attributes = {
   .name = "LCDTaskHandle",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for EncoderTaskHand */
-osThreadId_t EncoderTaskHandHandle;
-const osThreadAttr_t EncoderTaskHand_attributes = {
-  .name = "EncoderTaskHand",
+/* Definitions for EncoderHandle */
+osThreadId_t EncoderHandleHandle;
+const osThreadAttr_t EncoderHandle_attributes = {
+  .name = "EncoderHandle",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for ButtonTaskHandl */
-osThreadId_t ButtonTaskHandlHandle;
-const osThreadAttr_t ButtonTaskHandl_attributes = {
-  .name = "ButtonTaskHandl",
+/* Definitions for ButtonHandle */
+osThreadId_t ButtonHandleHandle;
+const osThreadAttr_t ButtonHandle_attributes = {
+  .name = "ButtonHandle",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -157,11 +156,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of LCDTaskHandle */
   LCDTaskHandleHandle = osThreadNew(LCDTask, NULL, &LCDTaskHandle_attributes);
 
-  /* creation of EncoderTaskHand */
-  EncoderTaskHandHandle = osThreadNew(EncoderTask, NULL, &EncoderTaskHand_attributes);
+  /* creation of EncoderHandle */
+  EncoderHandleHandle = osThreadNew(EncoderTask, NULL, &EncoderHandle_attributes);
 
-  /* creation of ButtonTaskHandl */
-  ButtonTaskHandlHandle = osThreadNew(ButtonTask, NULL, &ButtonTaskHandl_attributes);
+  /* creation of ButtonHandle */
+  ButtonHandleHandle = osThreadNew(ButtonTask, NULL, &ButtonHandle_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -183,7 +182,7 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* init code for USB_DEVICE */
-  
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   // Create the container (queue) for data
   /* Infinite loop */
@@ -240,7 +239,7 @@ void LCDTask(void *argument)
   /* Infinite loop */
 
   uint8_t frame_id = 0;
-  STM32_PLC_LCD_Show_Main_Frame(&frame_id, false);
+  STM32_PLC_LCD_Show_Main_Frame(&frame_id);
 
   for(;;)
   {
@@ -269,6 +268,9 @@ void EncoderTask(void *argument)
 		Encoder_count(&encoder);
 		speed = Encoder_getSpeed(&encoder)/ENCODER_PULSES_PER_ROTATION; //Unit: RPM
 		difference = Encoder_getDifference(&encoder);
+    //We need to update the value off the encoder on the screen that will be a shared variable between this task and the LCDTask
+
+    //do it with queue,now go to sleep
     //difference = 10;
     osDelay(1);
 	}
