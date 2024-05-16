@@ -103,6 +103,7 @@ int main(void)
   MX_UART4_Init();
   MX_USART1_UART_Init();
   MX_SPI3_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -180,7 +181,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
+extern bool state;
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM3 interrupt took place, inside
@@ -198,7 +199,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+	if(HAL_GPIO_ReadPin(Button1_GPIO_Port, Button1_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+	if(HAL_GPIO_ReadPin(Button2_GPIO_Port, Button2_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+	if(HAL_GPIO_ReadPin(Button3_GPIO_Port, Button3_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+	if(HAL_GPIO_ReadPin(Button4_GPIO_Port, Button4_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+	if(HAL_GPIO_ReadPin(Button5_GPIO_Port, Button5_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
+	if(HAL_GPIO_ReadPin(Button6_GPIO_Port, Button6_Pin) == GPIO_PIN_RESET){
+		state = true;
+		HAL_TIM_Base_Stop_IT(&htim2);
+	}
   /* USER CODE END Callback 1 */
 }
 

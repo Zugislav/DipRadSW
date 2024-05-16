@@ -7,9 +7,11 @@
 
 #include "ILI9341.h"
 #include "Touch_screen.h"
+#include "message.h"
+#include "string.h"
 
 ILI9341_SPI lcd;
-
+EncoderValue encoderValue;
 /*
  * Initialize LCD and touch
  * SPI settings:
@@ -19,6 +21,9 @@ ILI9341_SPI lcd;
  * CPOL = Low
  */
 void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_TypeDef *LCD_CS_PORT, uint16_t LCD_CS_PIN, GPIO_TypeDef *LCD_DC_PORT, uint16_t LCD_DC_PIN, GPIO_TypeDef *LCD_RST_PORT, uint16_t LCD_RST_PIN){
+	
+	memset(&encoderValue, 0, sizeof(EncoderValue));
+	encoderValue.len = 10;
 	/* Copy SPI settings */
 	lcd.lcdSpi = lcdSpi;
 	lcd.LCD_CS_PORT = LCD_CS_PORT;

@@ -63,6 +63,8 @@ static encoderHandle encoder = {0};
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi3;
 
+extern EncoderValue encoderValue;
+
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -184,40 +186,11 @@ void StartDefaultTask(void *argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-  // Create the container (queue) for data
   /* Infinite loop */
   for(;;)
   {
     /* USER CODE END WHILE */
- /*   if(xQueueReceive(mainQueueHandle, &buffer, 200) == pdTRUE ){
-      if(buffer >= BUTTON1_IRQ && buffer <= BUTTON6_IRQ){
-        printSerial("Button IRQ\r\n");
-        xTaskNotify(ButtonTask, (uint32_t)buffer, eSetValueWithOverwrite);
-      }
-      else if(buffer == ENCODER_IRQ){
-        xTaskNotify(EncoderTask, 0, eNoAction);
-        printSerial("Encoder IRQ\r\n");
-      }
-      else if(buffer == LCD_IRQ){
-        //LCDHandle();
-        printSerial("LCD IRQ\r\n");
-      }
-      else if (buffer == TOUCHPAD_IRQ){
-        //TouchpadHandle(buffer[0]);
-        printSerial("Touchpad IRQ\r\n");
-      }
-      else {
-        printSerial("Invalid IRQ\r\n");
-      }
-    }
-    */
-    /* USER CODE BEGIN 3
-    HAL_UART_Transmit(&huart4, "Hello world1!\r\n", 14, 200);
     osDelay(100);
-    HAL_UART_Transmit(&huart1, "Hello world2!\r\n", 15, 200);
-    osDelay(100);
-     */
-    osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -232,19 +205,10 @@ void StartDefaultTask(void *argument)
 void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
-
-  /* Check if we touch at the screen */
-  STM32_PLC_LCD(&hspi1, &hspi3, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
-
   /* Infinite loop */
-
-  uint8_t frame_id = 0;
-  STM32_PLC_LCD_Show_Main_Frame(&frame_id);
-
   for(;;)
   {
-    STM32_PLC_LCD_Call_Main_Logic(&frame_id);
-    osDelay(50);
+    osDelay(1);
   }
   /* USER CODE END LCDTask */
 }
@@ -261,19 +225,32 @@ void EncoderTask(void *argument)
   /* USER CODE BEGIN EncoderTask */
   /* Infinite loop */
   Encoder_init(&encoder, &htim1, ENCODER_PULSES_PER_ROTATION);
-	float speed = 0;
-	float difference = 0;
-	for(;;)
-	{
-		Encoder_count(&encoder);
-		speed = Encoder_getSpeed(&encoder)/ENCODER_PULSES_PER_ROTATION; //Unit: RPM
-		difference = Encoder_getDifference(&encoder);
-    //We need to update the value off the encoder on the screen that will be a shared variable between this task and the LCDTask
+float speed = 1;
+int difference = 1;
+char buffer[100];
+int firstValue = 0;
 
-    //do it with queue,now go to sleep
-    //difference = 10;
-    osDelay(1);
-	}
+for (;;) {
+  Encoder_count(&encoder);
+  speed = Encoder_getSpeed(&encoder) / ENCODER_PULSES_PER_ROTATION; // Unit: RPM
+  difference = Encoder_getDifference(&encoder);
+
+  // Check for speed and adjust difference accordingly
+  if (speed < 0.001) { // Adjust threshold for near-zero speed
+    difference = -abs(difference);  // Make difference negative for low speed
+  } else {
+    difference = abs(difference);  // Make difference positive for non-zero speed
+  }
+
+  // Check for change in difference and print information
+  if (difference != firstValue) {
+    sprintf(buffer, "Encoder rotation: %d (%.1f RPM)\r\n", difference, speed);
+    printSerial(buffer);
+  }
+
+  firstValue = difference;
+  osDelay(100);
+}
   /* USER CODE END EncoderTask */
 }
 
@@ -294,7 +271,7 @@ void ButtonTask(void *argument)
         // Wait for a notification and get the notification value
     if(xTaskNotifyWait(0, ULONG_MAX, &uValue, 100) == pdPASS)
     {
-      printSerial("Button %d IRQ\r\n", uValue);
+      //printSerial("Button %d IRQ\r\n", uValue);
       ButtonProcess(uValue);
       //in buttonHandle also set some thing to have it displaied on the LCD
     }
