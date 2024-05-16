@@ -132,7 +132,12 @@ void ILI9341_send_data_array(uint8_t data[], uint16_t size) {
 void ILI9341_send_command(uint8_t com) {
 	HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_RESET);
-	HAL_SPI_Transmit(lcd.lcdSpi, &com, 1, 5);
+	volatile HAL_StatusTypeDef status = HAL_SPI_Transmit(lcd.lcdSpi, &com, 1, 5);
+	if(status != HAL_OK){
+		HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_SET);
+		return;
+	}
 	HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_SET);
 }

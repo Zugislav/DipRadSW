@@ -14,7 +14,7 @@ void  STM32_PLC_LCD_Show_Main_Frame(uint8_t *frame_id) {
 	ILI9341_set_rotation(2);
 
 	/* Set background */
-	ILI9341_fill_screen(COLOR_NAVY);
+	ILI9341_fill_screen(COLOR_BLACK);
 
 	/* Print frame - large square */
 	ILI9341_draw_horizontal_line(5, 235, 310, COLOR_GREEN);

@@ -26,7 +26,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
-#include "button.h"
 #include "queue.h"
 #include "stm32f407xx.h"
 #include "gpio.h"
@@ -34,6 +33,8 @@
 #include "message.h"
 #include "limits.h"
 #include "Touch_screen.h"
+#include "button.h"
+#include "usbd_custom_hid_if.h"
 
 /* USER CODE END Includes */
 
@@ -63,7 +64,15 @@ static encoderHandle encoder = {0};
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi3;
 
+//extern the USB handler 
+extern USBD_HandleTypeDef hUsbDeviceFS; 
+
 extern EncoderValue encoderValue;
+
+uint8_t tx_buffer[64];		//Variable to store the output data 
+uint8_t report_buffer[64];		//Variable to receive the report buffer 
+uint8_t flag = 0;			//Variable to store the button flag 
+uint8_t flag_rx = 0;			//Variable to store the reception flag 
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -187,8 +196,10 @@ void StartDefaultTask(void *argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+  memset(&tx_buffer, 1, 64); // fill with 1 buffer
   for(;;)
   {
+    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, tx_buffer, 64); 
     /* USER CODE END WHILE */
     osDelay(100);
   }
@@ -205,10 +216,18 @@ void StartDefaultTask(void *argument)
 void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
+  STM32_PLC_LCD(&hspi1, &hspi3, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
+
   /* Infinite loop */
+
+  uint8_t frame_id = 0;
+  STM32_PLC_LCD_Show_Main_Frame(&frame_id);
+
   for(;;)
   {
     osDelay(1);
+    STM32_PLC_LCD_Call_Main_Logic(&frame_id);
+    osDelay(50);
   }
   /* USER CODE END LCDTask */
 }
@@ -244,7 +263,7 @@ for (;;) {
 
   // Check for change in difference and print information
   if (difference != firstValue) {
-    sprintf(buffer, "Encoder rotation: %d (%.1f RPM)\r\n", difference, speed);
+    sprintf(buffer, "Encoder rotation: %d\r\n", difference);
     printSerial(buffer);
   }
 
@@ -271,7 +290,7 @@ void ButtonTask(void *argument)
         // Wait for a notification and get the notification value
     if(xTaskNotifyWait(0, ULONG_MAX, &uValue, 100) == pdPASS)
     {
-      //printSerial("Button %d IRQ\r\n", uValue);
+      printSerial("Button %d IRQ\r\n", uValue);
       ButtonProcess(uValue);
       //in buttonHandle also set some thing to have it displaied on the LCD
     }

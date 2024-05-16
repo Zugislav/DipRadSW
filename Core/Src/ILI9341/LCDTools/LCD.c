@@ -50,10 +50,10 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 
 	/* VCOM */
 	ILI9341_send_command(ILI9341_VCOM1);                                     /* VCOM control */
-	ILI9341_send_data(0x35);                                                 /* Set the VCOMH voltage (0x35 = 4.025v) */
-	ILI9341_send_data(0x3e);                                                 /* Set the VCOML voltage (0x3E = -0.950v) */
+	ILI9341_send_data(0x17);                                                 /* Set the VCOMH voltage (0x35 = 4.025v) */
+	ILI9341_send_data(0x40);                                                 /* Set the VCOML voltage (0x3E = -0.950v) */
 	ILI9341_send_command(ILI9341_VCOM2);                                     /* VCOM control */
-	ILI9341_send_data(0xbe);
+	ILI9341_send_data(0x4a);
 
 	/* Memory Access Control */
 	ILI9341_send_command(ILI9341_MAC);
@@ -71,7 +71,7 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	ILI9341_send_command(ILI9341_COLUMN_ADDR);                               /* column set */
 	ILI9341_send_data(0x00);                                                 /* x0_HIGH---0 */
 	ILI9341_send_data(0x00);                                                 /* x0_LOW----0 */
-	ILI9341_send_data(0x00);                                                 /* x1_HIGH---240 */
+	ILI9341_send_data(0xEF);  //i guess                                               /* x1_HIGH---240 */
 	ILI9341_send_data(0xEF);                                                 /* x1_LOW----240 */
 	ILI9341_send_command(ILI9341_PAGE_ADDR);                                 /* page address set */
 	ILI9341_send_data(0x00);                                                 /* y0_HIGH---0 */
@@ -114,16 +114,16 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	HAL_Delay(5);
 
 	/* Touch Screen SPI */
-	TS_TOUCH_RAW_Def myRawTouchDef = {0};
-	TS_TOUCH_RAW_Def localRawTouch = {0};
-	TS_CALIBRATE_Def myTS_Calibrate = {0};
-	lcd.myTS_Calibrate = myTS_Calibrate;
-	lcd.localRawTouch = localRawTouch;
-	lcd.myRawTouchDef = myRawTouchDef;
-	lcd.touchSpi = touchSpi;
-	lcd.TOUCH_CS_PORT = LCD_CS_PORT;
-	lcd.TOUCH_CS_PIN = LCD_CS_PIN;
-	lcd.CMD_Default = 0x84;
+	// TS_TOUCH_RAW_Def myRawTouchDef = {0};
+	// TS_TOUCH_RAW_Def localRawTouch = {0};
+	// TS_CALIBRATE_Def myTS_Calibrate = {0};
+	// lcd.myTS_Calibrate = myTS_Calibrate;
+	// lcd.localRawTouch = localRawTouch;
+	// lcd.myRawTouchDef = myRawTouchDef;
+	// lcd.touchSpi = touchSpi;
+	// lcd.TOUCH_CS_PORT = LCD_CS_PORT;
+	// lcd.TOUCH_CS_PIN = LCD_CS_PIN;
+	// lcd.CMD_Default = 0x84;
 }
 
 void STM32_PLC_LCD_Calibrate_Touch() {
