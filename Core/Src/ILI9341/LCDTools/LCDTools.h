@@ -13,8 +13,6 @@
 #include <stdio.h> // For sprintf
 #include <string.h> // For memset
 #include "ILI9341.h"
-#include "pictures.h"
-#include "printf.h"
 #include "cmsis_os.h"
 
 void show_main_frame(ILI9341_SPI* spi, bool closedloop_on, bool update_main_frame, bool identification_on);

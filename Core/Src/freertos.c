@@ -263,6 +263,9 @@ for (;;) {
 
   // Check for change in difference and print information
   if (difference != firstValue) {
+    if(xQueueSend(mainQueueHandle, &difference, 0) != pdPASS) {
+      printSerial("Queue full\r\n");
+    }
     sprintf(buffer, "Encoder rotation: %d\r\n", difference);
     printSerial(buffer);
   }

@@ -53,6 +53,9 @@
 #define ILI9341_INTERFACE						0xF6
 #define ILI9341_PRC				   	  			0xF7
 #define ILI9341_VERTICAL_SCROLL 				0x33
+#define ILI9341_READ_ID1						0xDA
+#define ILI9341_READ_ID2						0xDB
+#define ILI9341_READ_ID3						0xDC	
 
 #define ILI9341_MEMCONTROL         				0x36
 #define ILI9341_MADCTL_MY  						0x80
@@ -156,6 +159,7 @@ extern ILI9341_SPI lcd;
 void ILI9341_send_data(uint8_t data);
 void ILI9341_send_data_array(uint8_t data[], uint16_t size);
 void ILI9341_send_command(uint8_t com);
+void ILI9341_send_read_command(uint8_t com, uint8_t *data,uint8_t len);
 
 /* User functions */
 void ILI9341_fill_screen(uint16_t color);

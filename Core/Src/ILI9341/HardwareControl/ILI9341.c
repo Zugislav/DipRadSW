@@ -142,6 +142,21 @@ void ILI9341_send_command(uint8_t com) {
 	HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_SET);
 }
 
+/* Send Command and read data to LCD */
+void ILI9341_send_read_command(uint8_t com, uint8_t *data,uint8_t len) {
+	HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_RESET);
+	volatile HAL_StatusTypeDef status = HAL_SPI_Transmit(lcd.lcdSpi, &com, 1, 10);
+	if(status != HAL_OK){
+		HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_SET);
+		return;
+	}
+	status = HAL_SPI_Receive(lcd.lcdSpi, data, len, 50);
+	HAL_GPIO_WritePin(lcd.LCD_CS_PORT, lcd.LCD_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(lcd.LCD_DC_PORT, lcd.LCD_DC_PIN, GPIO_PIN_SET);
+}
+
 /* Set cursor position */
 static void ILI9341_set_cursor_position(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
 	ILI9341_send_command(ILI9341_COLUMN_ADDR);

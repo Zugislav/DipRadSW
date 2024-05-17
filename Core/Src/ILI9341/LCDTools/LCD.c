@@ -48,6 +48,15 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	ILI9341_send_command(ILI9341_POWER2);                                    /* power control */
 	ILI9341_send_data(0x11);                                                 /* AVDD = VCIx2, VGH = VCIx7, VGL =-VCIx3 */
 
+	/* Read CHIP ID*/
+	uint8_t data[10] = {0};
+	ILI9341_send_read_command(ILI9341_READ_ID1, data, 10);
+	HAL_Delay(100);
+	ILI9341_send_read_command(ILI9341_READ_ID2, data, 10);
+	HAL_Delay(100);
+	ILI9341_send_read_command(ILI9341_READ_ID3, data, 10);
+	HAL_Delay(100);
+
 	/* VCOM */
 	ILI9341_send_command(ILI9341_VCOM1);                                     /* VCOM control */
 	ILI9341_send_data(0x17);                                                 /* Set the VCOMH voltage (0x35 = 4.025v) */

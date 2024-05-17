@@ -51,7 +51,6 @@ Core/Src/ILI9341/LCDTools/One_button_logic.c \
 Core/Src/ILI9341/LCDTools/Question_yes_no.c \
 Core/Src/ILI9341/LCDTools/Touch_calibration_screen_message_frame.c \
 Core/Src/ILI9341/LCDTools/Two_button_logic.c \
-Core/Src/ILI9341/LCDTools/printf.c \
 Core/Src/button.c \
 Core/Src/encoder.c \
 Core/Src/freertos.c \
