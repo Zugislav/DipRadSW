@@ -13,17 +13,6 @@
 #include "stdio.h"
 #include "stdint.h"
 
-enum Frame_ID{
-    MAIN_FRAME,
-    ENCODER_FRAME,
-    KEYBOARD_FRAME,
-    FRAME3,
-    FRAME4,
-    FRAME5,
-    FRAME6,
-    ABOUT_STM32_PLC_FRAME
-};
-
 /* LCD */
 void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_TypeDef *LCD_CS_PORT, uint16_t LCD_CS_PIN, GPIO_TypeDef *LCD_DC_PORT, uint16_t LCD_DC_PIN, GPIO_TypeDef *LCD_RST_PORT, uint16_t LCD_RST_PIN);
 void STM32_PLC_LCD_Calibrate_Touch();
@@ -39,22 +28,17 @@ void STM32_PLC_LCD_Show_Plot_Frame();
 void  STM32_PLC_LCD_Show_Main_Frame(uint8_t *frame_id);
 
 /* Numpad Frame */
-uint8_t STM32_PLC_LCD_Show_Numpad_Frame(bool decimalbutton_show, bool minusbutton_show, float *number_value, char title[]);
+uint8_t STM32_PLC_LCD_Show_Numpad_Frame();
 
 /* Keyboard Frame */
 uint8_t STM32_PLC_LCD_Show_Keyboard_Frame(char word[], char title[]);
 
-/* Encoder Frame*/
-void STM32_PLC_LCD_Show_Encoder_Revolutions_Settings_Frame(uint8_t *frame_id);
-
 /* Dialogs */
 uint8_t STM32_PLC_LCD_Show_Question_Yes_No_Dialog(char question[]);
-uint8_t STM32_PLC_LCD_Show_Information_OK_Dialog(char information[]);
 
 /* Logics */
 void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id);
-uint8_t STM32_PLC_LCD_Call_Numpad_Logic(bool decimalbutton_show, bool minusbutton_show, float *number_value);
-uint8_t STM32_PLC_LCD_Call_Keyboard_Logic(char word[]);
+uint8_t STM32_PLC_LCD_Call_Numpad_Logic();
 uint8_t STM32_PLC_LCD_Call_Two_Button_Logic(uint16_t b1_x1, uint16_t b1_y1, uint16_t b1_x2, uint16_t b1_y2, uint16_t b2_x1, uint16_t b2_y1, uint16_t b2_x2, uint16_t b2_y2);
 uint8_t STM32_PLC_LCD_Call_One_Button_Logic(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 

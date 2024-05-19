@@ -54,6 +54,6 @@ void  STM32_PLC_LCD_Show_Main_Frame(uint8_t *frame_id) {
 	encoderValue.value[2] = 1;
 	char str[40];
 	sprintf(str, "0010.000000 MHz");
-	ILI9341_print_text(str, 130, 80, COLOR_WHITE, COLOR_BLACK, 1);
+	ILI9341_print_text(str, 130, 80, COLOR_WHITE, COLOR_BLACK, 2);
 	ILI9341_print_text("^", 150, 70, COLOR_RED, COLOR_BLACK, 3);
 }

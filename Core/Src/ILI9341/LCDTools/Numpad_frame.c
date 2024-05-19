@@ -8,68 +8,67 @@
 #include "Touch_screen.h"
 #include "ILI9341.h"
 
-uint8_t STM32_PLC_LCD_Show_Numpad_Frame(bool decimalbutton_show, bool minusbutton_show, float *number_value, char title[]) {
+uint8_t STM32_PLC_LCD_Show_Numpad_Frame() {
 	/* Begin with black page */
 	ILI9341_fill_screen(COLOR_BLACK);
 
-	/* Print frame - large square */
-	ILI9341_hollow_rect(5, 5, 315, 235, COLOR_GREEN);
+	/* 
+		_______________________________________
+		|									  |
+		|			xxxx.xxxxxx MHz			  |
+		|_____________________________________|
+		|	   |      |		  |		  |       |
+		| GHz  |  1   |   2   |   3	  |   0   |
+		|______|______|_______|_______|_______|
+		|	   |      |		  |		  |       |
+		| MHz  |  4   |   5   |   6	  |   .   |
+		|______|______|_______|_______|_______|
+		|	   |      |		  |		  |       |
+		| kHz  |  7   | 8     |   9	  | Enter |
+		|______|______|_______|_______|_______|
 
-	/* Create gray, white square */
-	ILI9341_fill_rect(6, 6, 314, 55, COLOR_DGRAY);
-	ILI9341_fill_rect(12, 24, 308, 50, COLOR_WHITE);
+	*/
 
-	/* Set title */
-	ILI9341_print_text(title, 12, 12, COLOR_WHITE, COLOR_DGRAY, 1);
+	ILI9341_draw_horizontal_line(5, 5, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 60, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 115, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 170, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 235, 310, COLOR_GREEN);
 
-	/* Create buttons */
-	uint16_t x = 0;
-	char number[3];
-	for (uint8_t i = 0; i < 5; i++) {
-		x += 23;
-		/* Upper numbers */
-		ILI9341_fill_rect(x, 70, x + 40, 110, COLOR_DGRAY);
-		ILI9341_fill_rect(x + 5, 75, x + 35, 105, COLOR_WHITE);
-		sprintf(number, "%d", i);
-		ILI9341_print_text(number, x + 16, 83, COLOR_BLACK, COLOR_WHITE, 2);
 
-		/* Lower numbers */
-		ILI9341_fill_rect(x, 125, x + 40, 165, COLOR_DGRAY);
-		ILI9341_fill_rect(x + 5, 130, x + 35, 160, COLOR_WHITE);
-		sprintf(number, "%d", i + 5);
-		ILI9341_print_text(number, x + 16, 138, COLOR_BLACK, COLOR_WHITE, 2);
+	ILI9341_draw_vertical_line(5, 5, 230, COLOR_GREEN);
+	ILI9341_draw_vertical_line(5, 67, 160, COLOR_GREEN);
+	ILI9341_draw_vertical_line(5, 129, 160, COLOR_GREEN);
+	ILI9341_draw_vertical_line(5, 191, 160, COLOR_GREEN);
+	ILI9341_draw_vertical_line(5, 253, 160, COLOR_GREEN);
+	ILI9341_draw_vertical_line(5, 315, 230, COLOR_GREEN);
 
-		/* This hide or show the buttons */
-		if (i == 0 && minusbutton_show == true) {
-			ILI9341_fill_rect(x, 180, x + 40, 220, COLOR_DGRAY);
-			ILI9341_fill_rect(x + 5, 185, x + 35, 215, COLOR_WHITE);
-		} else if (i == 1 && decimalbutton_show == true) {
-			ILI9341_fill_rect(x, 180, x + 40, 220, COLOR_DGRAY);
-			ILI9341_fill_rect(x + 5, 185, x + 35, 215, COLOR_WHITE);
-		}
+	/* Print text */
+	char str[40];
+	sprintf(str, "xxxx.xxxxxx MHz");
+	ILI9341_print_text(str, 130, 190, COLOR_WHITE, COLOR_BLACK, 2);
 
-		/* This show the <- and OK buttons */
-		if (i > 1) {
-			ILI9341_fill_rect(x, 180, x + 40, 220, COLOR_DGRAY);
-			ILI9341_fill_rect(x + 5, 185, x + 35, 215, COLOR_WHITE);
-		}
+	/* Print buttons */
+	ILI9341_print_text("GHz", 25, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("MHz", 25, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("kHz", 25, 30, COLOR_WHITE, COLOR_BLACK, 2);
 
-		/* Give the buttons a text */
-		if (i == 0 && minusbutton_show == true) {
-			ILI9341_print_text("-", x + 15, 193, COLOR_BLACK, COLOR_WHITE, 2);
-		} else if (i == 1 && decimalbutton_show == true) {
-			ILI9341_print_text(".", x + 15, 193, COLOR_BLACK, COLOR_WHITE, 2);
-		} else if (i == 2) {
-			ILI9341_print_text("C", x + 15, 193, COLOR_BLACK, COLOR_WHITE, 2);
-		} else if (i == 3) {
-			ILI9341_print_text("<-", x + 9, 193, COLOR_BLACK, COLOR_WHITE, 2);
-		} else if (i == 4) {
-			ILI9341_print_text("OK", x + 9, 193, COLOR_BLACK, COLOR_WHITE, 2);
-		}
-		x += 35; /* Space between buttons */
-	}
+	/* Print buttons */
+	ILI9341_print_text("1", 87, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("2", 150, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("3", 211, 140, COLOR_WHITE, COLOR_BLACK, 2);
 
-	/* Logic */
-	*number_value = 0;
-	return STM32_PLC_LCD_Call_Numpad_Logic(decimalbutton_show, minusbutton_show, number_value);
+	ILI9341_print_text("4", 87, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("5", 150, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("6", 211, 85, COLOR_WHITE, COLOR_BLACK, 2);
+
+	ILI9341_print_text("7", 87, 30, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("8", 150, 30, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("9", 211, 30, COLOR_WHITE, COLOR_BLACK, 2);
+
+	ILI9341_print_text("0", 275, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text(".", 275, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("ENTER", 275, 30, COLOR_WHITE, COLOR_BLACK, 2);
+
+	return STM32_PLC_LCD_Call_Numpad_Logic();
 }

@@ -38,10 +38,6 @@ BUILD_DIR = build
 C_SOURCES =  \
 Core/Src/ILI9341/HardwareControl/ILI9341.c \
 Core/Src/ILI9341/HardwareControl/TSC2046.c \
-Core/Src/ILI9341/LCDTools/Encoder_frame.c \
-Core/Src/ILI9341/LCDTools/Information_ok_dialog.c \
-Core/Src/ILI9341/LCDTools/Keyboard_frame.c \
-Core/Src/ILI9341/LCDTools/Keyboard_logic.c \
 Core/Src/ILI9341/LCDTools/LCD.c \
 Core/Src/ILI9341/LCDTools/Main_frame.c \
 Core/Src/ILI9341/LCDTools/Main_logic.c \
@@ -50,7 +46,6 @@ Core/Src/ILI9341/LCDTools/Numpad_logic.c \
 Core/Src/ILI9341/LCDTools/One_button_logic.c \
 Core/Src/ILI9341/LCDTools/Question_yes_no.c \
 Core/Src/ILI9341/LCDTools/Touch_calibration_screen_message_frame.c \
-Core/Src/ILI9341/LCDTools/Two_button_logic.c \
 Core/Src/button.c \
 Core/Src/encoder.c \
 Core/Src/freertos.c \
