@@ -9,8 +9,15 @@
 #include "ILI9341.h"
 #include "string.h"
 #include "message.h"
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "cmsis_os2.h"
+#include "task.h"
+#include "queue.h"
+#include "limits.h"
 
-extern EncoderValue enc,oderValue;
+extern EncoderValue encoderValue;
+static uint32_t buttonValue = 0;
 
 #define GHZ_POINTER 0
 #define MHZ_POINTER 3
@@ -108,7 +115,14 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				//ENTER button
 				//store the value in encoderValue and then exit the loop and enter main frame
 			}
-
+			if(xTaskNotifyWait(0, ULONG_MAX, &buttonValue, 100) == pdTRUE)
+    		{
+				if (buttonValue == BUTTON6_IRQ){
+					//back button
+					//INACE OVO NECE IMATI SMISLA JER NEMA BACK BUTTONA NA NUMPADU
+					return 0;
+				}
+			}
 			/* Display the selected number text */
 			ILI9341_print_text(text, 15, 25, COLOR_BLACK, COLOR_WHITE, 3);
 		}

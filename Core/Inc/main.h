@@ -72,8 +72,6 @@ void Error_Handler(void);
 #define Button5_Pin GPIO_PIN_6
 #define Button5_GPIO_Port GPIOE
 #define Button5_EXTI_IRQn EXTI9_5_IRQn
-#define RST_Pin GPIO_PIN_3
-#define RST_GPIO_Port GPIOA
 #define LCD_CS_Pin GPIO_PIN_4
 #define LCD_CS_GPIO_Port GPIOA
 #define T_IRQ_Pin GPIO_PIN_4
@@ -138,6 +136,8 @@ void Error_Handler(void);
 #define GPIO7_GPIO_Port GPIOD
 #define GPIO8_Pin GPIO_PIN_7
 #define GPIO8_GPIO_Port GPIOD
+#define RST_Pin GPIO_PIN_8
+#define RST_GPIO_Port GPIOB
 #define DC_RS_Pin GPIO_PIN_0
 #define DC_RS_GPIO_Port GPIOE
 

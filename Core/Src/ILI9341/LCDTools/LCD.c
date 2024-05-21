@@ -268,10 +268,10 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	HAL_GPIO_WritePin(lcd.LCD_RESET_PORT, lcd.LCD_RESET_PIN, GPIO_PIN_SET); /* Turn LCD ON */
 	lcd._cp437 = 0; // False
 	lcd.rotationNum = 1;
-	if(NewInit()){
-		ILI9341_FillScreen(COLOR_BLACK);
-		return;
-	}
+	// if(NewInit()){
+	// 	ILI9341_FillScreen(COLOR_BLACK);
+	// 	return;
+	// }
 	/* Reset */
 	ILI9341_send_command(ILI9341_RESET);                                     /* software reset command */
 	HAL_Delay(100);

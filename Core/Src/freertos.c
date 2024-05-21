@@ -108,6 +108,11 @@ osMessageQueueId_t mainQueueHandle;
 const osMessageQueueAttr_t mainQueue_attributes = {
   .name = "mainQueue"
 };
+/* Definitions for encoderValue */
+osMessageQueueId_t encoderValueHandle;
+const osMessageQueueAttr_t encoderValue_attributes = {
+  .name = "encoderValue"
+};
 /* Definitions for printMutex */
 osMutexId_t printMutexHandle;
 const osMutexAttr_t printMutex_attributes = {
@@ -155,6 +160,9 @@ void MX_FREERTOS_Init(void) {
   /* Create the queue(s) */
   /* creation of mainQueue */
   mainQueueHandle = osMessageQueueNew (128, sizeof(uint8_t), &mainQueue_attributes);
+
+  /* creation of encoderValue */
+  encoderValueHandle = osMessageQueueNew (16, sizeof(int16_t), &encoderValue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -256,15 +264,15 @@ for (;;) {
 
   // Check for speed and adjust difference accordingly
   if (speed < 0.001) { // Adjust threshold for near-zero speed
-    difference = -abs(difference);  // Make difference negative for low speed
+    difference = abs(difference);  // Make difference negative for low speed
   } else {
-    difference = abs(difference);  // Make difference positive for non-zero speed
+    difference = -abs(difference);  // Make difference positive for non-zero speed
   }
 
   // Check for change in difference and print information
   if (difference != firstValue) {
-    if(xQueueSend(mainQueueHandle, &difference, 0) != pdPASS) {
-      printSerial("Queue full\r\n");
+    if(xQueueSend(encoderValueHandle, &difference, 0) != pdPASS) {
+      printSerial("Queue positive full\r\n");
     }
     sprintf(buffer, "Encoder rotation: %d\r\n", difference);
     printSerial(buffer);

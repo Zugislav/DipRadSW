@@ -30,45 +30,46 @@ uint8_t STM32_PLC_LCD_Show_Numpad_Frame() {
 	*/
 
 	ILI9341_draw_horizontal_line(5, 5, 310, COLOR_GREEN);
-	ILI9341_draw_horizontal_line(5, 60, 310, COLOR_GREEN);
-	ILI9341_draw_horizontal_line(5, 115, 310, COLOR_GREEN);
-	ILI9341_draw_horizontal_line(5, 170, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 70, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 125, 310, COLOR_GREEN);
+	ILI9341_draw_horizontal_line(5, 180, 310, COLOR_GREEN);
 	ILI9341_draw_horizontal_line(5, 235, 310, COLOR_GREEN);
 
 
 	ILI9341_draw_vertical_line(5, 5, 230, COLOR_GREEN);
-	ILI9341_draw_vertical_line(5, 67, 160, COLOR_GREEN);
-	ILI9341_draw_vertical_line(5, 129, 160, COLOR_GREEN);
-	ILI9341_draw_vertical_line(5, 191, 160, COLOR_GREEN);
-	ILI9341_draw_vertical_line(5, 253, 160, COLOR_GREEN);
-	ILI9341_draw_vertical_line(5, 315, 230, COLOR_GREEN);
+	ILI9341_draw_vertical_line(67, 70, 165, COLOR_GREEN);
+	ILI9341_draw_vertical_line(129, 70, 165, COLOR_GREEN);
+	ILI9341_draw_vertical_line(191, 70, 165, COLOR_GREEN);
+	ILI9341_draw_vertical_line(253, 70, 165, COLOR_GREEN);
+	ILI9341_draw_vertical_line(315, 5, 230, COLOR_GREEN);
 
 	/* Print text */
 	char str[40];
 	sprintf(str, "xxxx.xxxxxx MHz");
-	ILI9341_print_text(str, 130, 190, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text(str, 70, 35, COLOR_WHITE, COLOR_BLACK, 2);
 
 	/* Print buttons */
-	ILI9341_print_text("GHz", 25, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("MHz", 25, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("kHz", 25, 30, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("GHz", 25, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("MHz", 25, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("kHz", 25, 195, COLOR_WHITE, COLOR_BLACK, 2);
 
 	/* Print buttons */
-	ILI9341_print_text("1", 87, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("2", 150, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("3", 211, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("1", 87, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("2", 150, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("3", 211, 85, COLOR_WHITE, COLOR_BLACK, 2);
 
-	ILI9341_print_text("4", 87, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("5", 150, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("6", 211, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("4", 87, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("5", 150, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("6", 211, 140, COLOR_WHITE, COLOR_BLACK, 2);
 
-	ILI9341_print_text("7", 87, 30, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("8", 150, 30, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("9", 211, 30, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("7", 87, 195, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("8", 150, 195, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("9", 211, 195, COLOR_WHITE, COLOR_BLACK, 2);
 
-	ILI9341_print_text("0", 275, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text(".", 275, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("ENTER", 275, 30, COLOR_WHITE, COLOR_BLACK, 2);
+
+	ILI9341_print_text("0", 275, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text(".", 275, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("ENTER", 270, 195, COLOR_WHITE, COLOR_BLACK, 1);
 
 	return STM32_PLC_LCD_Call_Numpad_Logic();
 }
