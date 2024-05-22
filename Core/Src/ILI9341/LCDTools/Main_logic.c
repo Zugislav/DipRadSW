@@ -52,59 +52,83 @@ static void LevelAllRightOfPointerToZero(){
 
 static void updateEncoderValue(int16_t difference) {
 
-  // Ensure length is valid (avoid out-of-bounds access)
-  if (encoderValue.len > 10 || encoderValue.len <= 0) {
-    return;  // Handle invalid length (optional)
-  }
+	uint8_t full = 0;
+	// Handle positive difference
+	if (difference >= 0) {
+		// Add the new value at the pointer position
+		encoderValue.value[encoderValue.pointerToValue - 1] += difference;
 
-  // Handle negative difference by subtracting its absolute value
-  if (difference < 0) {
-    difference = -difference;  // Get absolute value
+		// Handle carry-over (if needed)
+		for (int i = encoderValue.pointerToValue - 1; i >= 1; i--) {
+		// Add carry-over
+		encoderValue.value[i - 1] += encoderValue.value[i] / 10;
+		if(i == 1){
+			if(encoderValue.value[i - 1] >= 10){
+				encoderValue.value[i - 1] = 9;
+				full = 1;
+			}
+		}
+		if(full == 1){
+			//check if the second value is full
+			for(int j = 1; j < encoderValue.pointerToValue; j++){
+				//set all digits to 9
+				encoderValue.value[j] = 9;
+			}
+		}
+		encoderValue.value[i] %= 10;  // Limit previous digit to 0-9
+		}
+	} 
+	else if(difference < 0){
+			// Handle borrowing (if needed)
+			uint8_t borrow = 0;  // Flag to indicate borrowing
+			uint16_t value = encoderValue.value[encoderValue.pointerToValue - 1];  // Temporary variable to store the value
+			for (int j = encoderValue.pointerToValue - 1; j >= 1; j--){
+				// Perform subtraction and handle borrowing
+				//find the first number that is bigger then zero
+				if(-difference > value){
+					//find the next significant value that is bigger then zero
+					if(encoderValue.value[j - 1] > 0){
+						value += encoderValue.value[j - 1] * 10;
+							if(value > -difference){
+								value += difference;
+								borrow = j;
+								break;
+							}
+					}
+				}
+				else if(-difference <= value){
+					encoderValue.value[encoderValue.pointerToValue - 1] += difference;
+					break;
+				}
+			}
+			if(borrow > 0){
+				//handle borrowing
+				uint8_t tmpArr[10] = {0};
+				for(int i = 0; i < 10; i++){
+					tmpArr[i] = value % 10;
+					value /= 10;
+					if(value == 0) break;
+				}
+				uint8_t tmp = 0;
+				for(int j = borrow; j >= 0; j--){
+					encoderValue.value[j] = tmpArr[tmp++];
+				}
+			}
+			else{
+				//there where no bigger values so we will set all the values right of pointer to 9
+				for(int i = 0; i < encoderValue.pointerToValue; i++){
+					encoderValue.value[i] = 0;
+				}
+				for(int i = encoderValue.pointerToValue; i < 10; i++){
+					encoderValue.value[i] = 9;
+				}
+			}
+		}
 
-    // Combine digits left of the pointer into a uint32_t
-    uint32_t leftValue = 0;
-    for (int i = encoderValue.pointerToValue - 1; i > 0; i--) {
-      leftValue = leftValue * pow(10,i) + encoderValue.value[i];
-    }
-
-    // Perform subtraction on the combined value
-    leftValue -= difference;
-
-    // Update the array elements from the combined value
-    int j = 0;
-    while (leftValue > 0) {
-      encoderValue.value[j++] = leftValue % 10;
-      leftValue /= 10;
-    }
-
-    // Update remaining elements with 0 (optional)
-    for (; j < encoderValue.pointerToValue - 1; j++) {
-      encoderValue.value[j] = 0;
-    }
-  } else {
-    // Existing logic for adding positive difference (unchanged)
-    encoderValue.value[encoderValue.pointerToValue - 1] += difference;
-  }
-
-  // Handle carry-over (if needed)
-  for (int i = encoderValue.pointerToValue - 1; i >= 1; i--) {
-    // Handle carry-over based on sign of difference
-    if (difference >= 0) {
-      encoderValue.value[i - 1] += encoderValue.value[i] / 10; // Add carry-over (positive)
-    } else {
-      encoderValue.value[i - 1] += 10 - (encoderValue.value[i] % 10); // Borrow & subtract digit (negative)
-    }
-    encoderValue.value[i] %= 10;  // Limit previous digit to 0-9
-  }
-
-  // Ensure all values are within 0-9 range (consider sign)
-  for (int i = 0; i < encoderValue.len; i++) {
-    if (difference >= 0) {
-      encoderValue.value[i] = (encoderValue.value[i] % 10 + 10) % 10; // Modulo 10 twice for positive values > 9
-    } else {
-      encoderValue.value[i] = (encoderValue.value[i] - 10 + 10) % 10; // Adjust for negative values > 9
-    }
-  }
+		// Ensure all values are within 0-9 range
+		for (int i = 0; i < encoderValue.len; i++) {
+			encoderValue.value[i] = (encoderValue.value[i] % 10 + 10) % 10; // Modulo 10 twice for positive values > 9
+		}
 }
 
 static void printPointerToValue(){
