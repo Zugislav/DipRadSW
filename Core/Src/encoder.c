@@ -9,10 +9,12 @@
  * Then select Encoder Mode TI1 and TI2.
  * Leave the rest as default
  */
+extern uint8_t ENCODER_DIVIDE;
 
 void Encoder_init(encoderHandle *encoder, TIM_HandleTypeDef *htim, uint16_t one_rotation_pulses) {
 	encoder->htim = htim;
 	encoder->one_rotation_pulses = one_rotation_pulses;
+	ENCODER_DIVIDE = 1;
 }
 
 void Encoder_count(encoderHandle *encoder) {
@@ -53,6 +55,10 @@ void Encoder_count(encoderHandle *encoder) {
 		} else {
 			/* X4 Mode Countering increase with 2 Pulse */
 			encoder->speed = encoder->diff * 60 / 2 / encoder->one_rotation_pulses; //RPM x 60
+		}
+		
+		if(ENCODER_DIVIDE == 4 && encoder->diff > 0){
+			encoder->diff = encoder->diff / 4;
 		}
 
 		encoder->tick = HAL_GetTick();

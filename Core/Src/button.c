@@ -11,6 +11,7 @@ extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim2;
 bool state = true;
+uint8_t ENCODER_DIVIDE;
 
 void ButtonProcess(uint16_t GPIO_Pin){
   switch(GPIO_Pin){
@@ -19,6 +20,14 @@ void ButtonProcess(uint16_t GPIO_Pin){
 		break;
 	case BUTTON2_IRQ:
 		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+		break;
+	case ENCODER_IRQ:
+		if(ENCODER_DIVIDE != 4){
+			ENCODER_DIVIDE = 4;
+		}
+		else{
+			ENCODER_DIVIDE = 1;
+		}
 		break;
 	default:
 		return;
@@ -96,7 +105,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			break;
 		}
 		else return;
-
+	case EN_SW_Pin:
+		button = ENCODER_IRQ;
+		xTaskNotifyFromISR(ButtonHandleHandle, button, eSetValueWithOverwrite, &hptw);
+		break;
 	default:
 		return;
 	}
