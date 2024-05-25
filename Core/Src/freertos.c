@@ -34,8 +34,7 @@
 #include "limits.h"
 #include "Touch_screen.h"
 #include "button.h"
-#include "usbd_custom_hid_if.h"
-
+#include "usb_device.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,15 +63,7 @@ static encoderHandle encoder = {0};
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi3;
 
-//extern the USB handler 
-extern USBD_HandleTypeDef hUsbDeviceFS; 
-
 extern EncoderValue encoderValue;
-
-uint8_t tx_buffer[64];		//Variable to store the output data 
-uint8_t report_buffer[64];		//Variable to receive the report buffer 
-uint8_t flag = 0;			//Variable to store the button flag 
-uint8_t flag_rx = 0;			//Variable to store the reception flag 
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -204,10 +195,8 @@ void StartDefaultTask(void *argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-  memset(&tx_buffer, 1, 64); // fill with 1 buffer
   for(;;)
   {
-    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, tx_buffer, 64); 
     /* USER CODE END WHILE */
     osDelay(100);
   }
@@ -225,7 +214,6 @@ void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
   STM32_PLC_LCD(&hspi1, &hspi3, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
-
   /* Infinite loop */
 
   uint8_t frame_id = 0;
@@ -258,31 +246,31 @@ char buffer[100];
 int firstValue = 0;
 
 for (;;) {
-  Encoder_count(&encoder);
-  speed = Encoder_getSpeed(&encoder) / ENCODER_PULSES_PER_ROTATION; // Unit: RPM
-  difference = Encoder_getDifference(&encoder);
+    Encoder_count(&encoder);
+    speed = Encoder_getSpeed(&encoder) / ENCODER_PULSES_PER_ROTATION; // Unit: RPM
+    difference = Encoder_getDifference(&encoder);
 
-  // Check for speed and adjust difference accordingly
-  if (speed < 0.001) { // Adjust threshold for near-zero speed
-    difference = abs(difference);  // Make difference negative for low speed
-  } else {
-    difference = -abs(difference);  // Make difference positive for non-zero speed
-  }
-
-  // Check for change in difference and print information
-  if (difference != firstValue) {
-    if(xQueueSend(encoderValueHandle, &difference, 0) != pdPASS) {
-      printSerial("Queue positive full\r\n");
+    // Check for speed and adjust difference accordingly
+    if (speed < 0.001) { // Adjust threshold for near-zero speed
+      difference = abs(difference);  // Make difference negative for low speed
+    } else {
+      difference = -abs(difference);  // Make difference positive for non-zero speed
     }
-    sprintf(buffer, "Encoder rotation: %d\r\n", difference);
-    printSerial(buffer);
-  }
 
-  firstValue = difference;
-  osDelay(100);
+    // Check for change in difference and print information
+    if (difference != firstValue) {
+      if(xQueueSend(encoderValueHandle, &difference, 0) != pdPASS) {
+        printSerial("Queue positive full\r\n");
+      }
+      sprintf(buffer, "%d", difference);
+      printSerial(buffer);
+    }
+
+    firstValue = difference;
+    osDelay(100);
+  }
 }
   /* USER CODE END EncoderTask */
-}
 
 /* USER CODE BEGIN Header_ButtonTask */
 /**

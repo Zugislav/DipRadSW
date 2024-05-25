@@ -51,7 +51,7 @@ enum IRQType{
 /* USER CODE END Prototypes */
 
 typedef struct{
-  int16_t value[10];
+  uint32_t value[10];
   uint8_t len;
   uint8_t pointerToValue;
 }EncoderValue;

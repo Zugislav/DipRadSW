@@ -10,7 +10,7 @@
 
 uint8_t STM32_PLC_LCD_Call_One_Button_Logic(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	while (1) {
-		if (TSC2046_isPressed()) {
+		if (TSC2046_isPressed(true)) {
 			TSC2046_GetTouchData();
 			uint16_t X = lcd.myTsData.X;
 			uint16_t Y = lcd.myTsData.Y;

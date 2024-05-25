@@ -126,16 +126,29 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	HAL_Delay(5);
 
 	/* Touch Screen SPI */
-	// TS_TOUCH_RAW_Def myRawTouchDef = {0};
-	// TS_TOUCH_RAW_Def localRawTouch = {0};
-	// TS_CALIBRATE_Def myTS_Calibrate = {0};
-	// lcd.myTS_Calibrate = myTS_Calibrate;
-	// lcd.localRawTouch = localRawTouch;
-	// lcd.myRawTouchDef = myRawTouchDef;
-	// lcd.touchSpi = touchSpi;
-	// lcd.TOUCH_CS_PORT = LCD_CS_PORT;
-	// lcd.TOUCH_CS_PIN = LCD_CS_PIN;
-	// lcd.CMD_Default = 0x84;
+	TS_TOUCH_RAW_Def myRawTouchDef = {0};
+	TS_TOUCH_RAW_Def localRawTouch = {0};
+	TS_CALIBRATE_Def myTS_Calibrate = {0};
+	lcd.myTS_Calibrate = myTS_Calibrate;
+	lcd.localRawTouch = localRawTouch;
+	lcd.myRawTouchDef = myRawTouchDef;
+	lcd.touchSpi = touchSpi;
+	lcd.TOUCH_CS_PORT = LCD_CS_PORT;
+	lcd.TOUCH_CS_PIN = LCD_CS_PIN;
+	lcd.CMD_Default = 0x84;
+
+	/* Set the scaling */
+	float Scale_X, Scale_Y, Bias_X, Bias_Y;
+	TSC2046_SetTouchCalibrationParameters(1.0, 1.0, 1.0, 0.5);
+
+	/* This will only run if we press the LCD screen */
+	STM32_PLC_LCD_Show_Touch_Screen_Calibration_Message_Frame();
+	HAL_Delay(2000);
+	STM32_PLC_LCD_Calibrate_Touch();
+}
+
+bool STM32_PLC_LCD_Is_Pressed(){
+	return TSC2046_isPressed(false);
 }
 
 void STM32_PLC_LCD_Calibrate_Touch() {

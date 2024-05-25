@@ -82,7 +82,7 @@ static void updateEncoderValue(int16_t difference) {
 			// Handle borrowing (if needed)
 			uint8_t borrow = 0;  // Flag to indicate borrowing
 			uint16_t value = encoderValue.value[encoderValue.pointerToValue - 1];  // Temporary variable to store the value
-			for (int j = encoderValue.pointerToValue - 1; j >= 1; j--){
+			for (int j = encoderValue.pointerToValue - 1; j > 1; j--){
 				// Perform subtraction and handle borrowing
 				//find the first number that is bigger then zero
 				if(-difference > value){
@@ -146,27 +146,27 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		uint16_t X = lcd.myTsData.X;
 		uint16_t Y = lcd.myTsData.Y;
 		/* Check which button we are pressing on */
-		if (X >= 5 && X <= 83 && Y >= 5 && Y <= 35) {            /* First icon */
+		if (X >= 5 && X <= 83 && Y >= 155 && Y <= 235) {            /* First icon */
 			//go left
 			ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 			encoderValue.pointerToValue--;
 			printPointerToValue();
 		} 
-		else if (X >= 5 && X <= 315 && Y >= 35 && Y <= 53) {			
+		else if (X >= 83 && X <= 160 && Y >= 155 && Y <= 235) {			
 			//go right
 			ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 			encoderValue.pointerToValue++;
 			printPointerToValue();
 		}
-		else if (X >= 5 && X <= 315 && Y >= 53 && Y <= 80) {
+		else if (X >= 160 && X <= 238 && Y >= 155 && Y <= 235) {
 			//LEVEL all
 			LevelAllRightOfPointerToZero();
 		} 
-		else if (X >= 5 && X <= 315 && Y >= 80 && Y <= 107) {
+		else if (X >= 238 && X <= 310 && Y >= 155 && Y <= 235) {
 			//Keyboard
 			STM32_PLC_LCD_Show_Numpad_Frame();
 			STM32_PLC_LCD_Show_Main_Frame(frame_id);
-		} 
+		}
 	}
 	buttonValue = 0;
 	//wait for the buttons to be pressed (left, right, keyboard and level)

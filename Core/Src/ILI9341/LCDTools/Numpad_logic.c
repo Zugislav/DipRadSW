@@ -130,7 +130,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 	uint8_t k = 0;
 	uint8_t freqPointer = 3;
 	while (1) {
-		if (TSC2046_isPressed()) {
+		if (TSC2046_isPressed(true)) {
 			TSC2046_GetTouchData();
 			uint16_t X = lcd.myTsData.X;
 			uint16_t Y = lcd.myTsData.Y;

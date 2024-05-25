@@ -7,6 +7,11 @@
 
 #include "ILI9341.h"
 
+
+static uint8_t count = 0;
+static bool has_been_pressed = false;
+
+
 // Send TSC2046 Command and wait for a response
 static uint16_t TSC2046_SendCommand(uint8_t cmd) {
 	uint8_t lcdBuf[3] = { 0, 0, 0 };
@@ -45,6 +50,26 @@ static void TSC2046_TL_point() {
 static void TSC2046_BR_point() {
 	ILI9341_fill_circle(lcd.myTS_Calibrate.Width - 1, lcd.myTS_Calibrate.Height - 1, 3, COLOR_BLUE);
 	ILI9341_print_text("Press here", lcd.myTS_Calibrate.Width - 80, lcd.myTS_Calibrate.Height - 40, COLOR_BLUE, COLOR_CYAN, 1);
+}
+
+static bool TSC2046_isPressed2() {
+	bool pressed = 300 > TSC2046_getRaw_Z() ? true : false;
+	if(pressed == true && has_been_pressed == false){
+		has_been_pressed = true;
+		count = 0;
+		HAL_Delay(100); /* Wait until the finger have fully pressed the LCD screen. The Touch SPI and Touch Interrupt are different things */
+		return true;
+	} else {
+		/* This is only for debouncing */
+		if(pressed == false && has_been_pressed == true) {
+			count = 1 + count;
+			if(count >= 10)
+				has_been_pressed = false;
+		}else{
+			count = 0;
+		}
+		return false;
+	}
 }
 
 // Poll for touch status
@@ -88,7 +113,7 @@ static void TSC2046_GetRawTouch() {
 // Calibrate resistive touch panel
 void TSC2046_Calibrate() {
 	// Set rotation
-	ILI9341_set_rotation(2);
+	ILI9341_set_rotation(4);
 
 	// Reset
 	lcd.myTS_Calibrate.TL_X = 0;
@@ -112,11 +137,11 @@ void TSC2046_Calibrate() {
 		HAL_Delay(10);
 	}
 	HAL_Delay(1000);
-
+	//has_been_pressed = false;
 	// Get Bottom-Right corner calibration coordinate
 	TSC2046_BR_point();
 	while (1) {
-		if (TSC2046_isPressed()) {
+		if (TSC2046_isPressed2()) {
 			for (uint8_t i = 0; i < 10; i++) {
 				TSC2046_GetRawTouch();
 				lcd.myTS_Calibrate.BR_X += lcd.myRawTouchDef.x_touch;
@@ -179,8 +204,6 @@ void TSC2046_GetTouchData() {
 }
 
 bool TSC2046_isPressed() {
-	static uint8_t count = 0;
-	static bool has_been_pressed = false;
 	bool pressed = 50 < TSC2046_getRaw_Z() ? true : false;
 	if(pressed == true && has_been_pressed == false){
 		has_been_pressed = true;
