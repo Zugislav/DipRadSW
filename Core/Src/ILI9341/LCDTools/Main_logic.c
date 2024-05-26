@@ -125,7 +125,23 @@ static void updateEncoderValue(int16_t difference) {
 void calculateSendFrequency(){
 	//calculate the frequency to send to the radio
 	uint32_t frequency = 0;
-	uint32_t power = 0;
+	if(encoderValue.value[0] > 4){
+		ILI9341_fill_screen(COLOR_RED);
+		ILI9341_print_text("Out of range", 85, 100, COLOR_WHITE, COLOR_RED, 2);
+		HAL_Delay(5000);
+		encoderValue.value[0] = 0;
+		STM32_PLC_LCD_Show_Main_Frame(0);
+		return;
+	}
+	//this is only to have control not to have more then max uint32_t value
+	if(encoderValue.value[0] == 4 && encoderValue.value[1] >= 2 && encoderValue.value[2] >= 9 && encoderValue.value[3] >= 5){
+		ILI9341_fill_screen(COLOR_RED);
+		ILI9341_print_text("Out of range", 85, 100, COLOR_WHITE, COLOR_RED, 2);
+		HAL_Delay(5000);
+		encoderValue.value[0] = 0;
+		STM32_PLC_LCD_Show_Main_Frame(0);
+		return;
+	}
 	for(int i = 9; i >= 0; i--){
 		frequency += encoderValue.value[i] * powersOfTen(9 - i);
 	}
