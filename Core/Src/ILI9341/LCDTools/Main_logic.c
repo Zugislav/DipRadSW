@@ -17,33 +17,15 @@
 #include "string.h"
 #include "math.h"
 #include "ili9341_touch.h"
+#include "usart.h"
 
 extern EncoderValue encoderValue;
 extern osMessageQueueId_t mainQueueHandle;
 extern osMessageQueueId_t encoderValueHandle;
+extern UART_HandleTypeDef huart4;
 
 static int16_t encoderDiff = 0;
 static uint32_t buttonValue = 0;
-
-void printEncoderValue(){
-	// Print the encoder value
-	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
-	HAL_Delay(30);
-	char str[6] = {0};
-	for(int i = 0; i < 4; i++){
-		str[i] = encoderValue.value[i] + '0';
-	}
-	str[4] = '.';
-	char str2[7] = {0};
-	ILI9341_print_text(str, 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	HAL_Delay(30);
-	for(int i = 0; i < 6; i++){
-		str2[i] = encoderValue.value[i + 4] + '0';
-	}
-	ILI9341_print_text(str2, 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	HAL_Delay(30);
-}
 
 static void LevelAllRightOfPointerToZero(){
 	// Set all values to the right of the pointer to 0
@@ -140,6 +122,42 @@ static void updateEncoderValue(int16_t difference) {
 		}
 }
 
+void calculateSendFrequency(){
+	//calculate the frequency to send to the radio
+	uint32_t frequency = 0;
+	uint32_t power = 0;
+	for(int i = 9; i >= 0; i--){
+		frequency += encoderValue.value[i] * powersOfTen(9 - i);
+	}
+	//send the frequency to the radio
+	uint8_t message[4] = {0};
+	message[3] = (frequency >> 24) & 0xFF;
+	message[2] = (frequency >> 16) & 0xFF;
+	message[1] = (frequency >> 8) & 0xFF;
+	message[0] = frequency & 0xFF;
+	HAL_UART_Transmit(&huart4, message, 4, 100);
+}
+
+void printEncoderValue(){
+	// Print the encoder value
+	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
+	HAL_Delay(30);
+	char str[6] = {0};
+	for(int i = 0; i < 4; i++){
+		str[i] = encoderValue.value[i] + '0';
+	}
+	str[4] = '.';
+	char str2[7] = {0};
+	ILI9341_print_text(str, 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
+	for(int i = 0; i < 6; i++){
+		str2[i] = encoderValue.value[i + 4] + '0';
+	}
+	ILI9341_print_text(str2, 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
+}
+
 void printPointerToValue(){
 	// Print the pointer to the value
 	if(encoderValue.pointerToValue < 4 && encoderValue.pointerToValue > 0){
@@ -169,10 +187,13 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		else if (x >= 160 && x <= 238 && y >= 155 && y <= 235) {
 			//LEVEL all
 			LevelAllRightOfPointerToZero();
+			calculateSendFrequency();
 		} 
 		else if (x >= 238 && x <= 310 && y >= 155 && y <= 235) {
 			//Keyboard
 			STM32_PLC_LCD_Show_Numpad_Frame();
+			//send new frequency
+			calculateSendFrequency();
 			STM32_PLC_LCD_Show_Main_Frame(frame_id);
 		}
 	}
@@ -190,6 +211,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 			case BUTTON4_IRQ:
 				//LEVEL all right of the pointer to 0
 				LevelAllRightOfPointerToZero();
+				calculateSendFrequency();
 				break;
 			case BUTTON5_IRQ:
 				//pointer goes to right
@@ -200,6 +222,8 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 			case BUTTON6_IRQ:
 				//KEYBOARD call
 				STM32_PLC_LCD_Show_Numpad_Frame();
+				//send new frequency
+				calculateSendFrequency();
 				STM32_PLC_LCD_Show_Main_Frame(frame_id);
 				break;
 		}
@@ -210,6 +234,8 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		updateEncoderValue(encoderDiff);
 		//now update the value on screen
 		printEncoderValue();
+		//send the new value to the radio
+		calculateSendFrequency();
 		//update value of the encoder
 	}
 }

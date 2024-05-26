@@ -30,3 +30,4 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic();
 
 void printEncoderValue();
 void printPointerToValue();
+void calculateSendFrequency();

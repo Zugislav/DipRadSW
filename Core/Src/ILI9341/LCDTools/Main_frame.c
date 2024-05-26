@@ -69,4 +69,6 @@ void  STM32_PLC_LCD_Show_Main_Frame(uint8_t *frame_id) {
 	//ILI9341_print_text(str, 100, 80, COLOR_WHITE, COLOR_BLACK, 2);
 	// ILI9341_print_text("^", 105, 110, COLOR_RED, COLOR_BLACK, 3);
 	printPointerToValue();
+
+	calculateSendFrequency();
 }

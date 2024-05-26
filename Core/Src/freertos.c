@@ -263,7 +263,7 @@ for (;;) {
       if(xQueueSend(encoderValueHandle, &difference, 0) != pdPASS) {
         printSerial("Queue positive full\r\n");
       }
-      sprintf(buffer, "%d", difference);
+      sprintf(buffer, "Encoder difference is %d\r\n", difference);
       printSerial(buffer);
     }
 
