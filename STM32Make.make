@@ -43,7 +43,6 @@ Core/Src/ILI9341/LCDTools/Main_frame.c \
 Core/Src/ILI9341/LCDTools/Main_logic.c \
 Core/Src/ILI9341/LCDTools/Numpad_frame.c \
 Core/Src/ILI9341/LCDTools/Numpad_logic.c \
-Core/Src/ILI9341/LCDTools/One_button_logic.c \
 Core/Src/button.c \
 Core/Src/encoder.c \
 Core/Src/freertos.c \

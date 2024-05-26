@@ -25,7 +25,7 @@ extern osMessageQueueId_t encoderValueHandle;
 static int16_t encoderDiff = 0;
 static uint32_t buttonValue = 0;
 
-static void printEncoderValue(){
+void printEncoderValue(){
 	// Print the encoder value
 	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
 	HAL_Delay(30);
@@ -140,7 +140,7 @@ static void updateEncoderValue(int16_t difference) {
 		}
 }
 
-static void printPointerToValue(){
+void printPointerToValue(){
 	// Print the pointer to the value
 	if(encoderValue.pointerToValue < 4 && encoderValue.pointerToValue > 0){
 		ILI9341_print_text("^", 105 - (4 - encoderValue.pointerToValue) * 20, 110, COLOR_RED, COLOR_BLACK, 3);
@@ -149,6 +149,7 @@ static void printPointerToValue(){
 		ILI9341_print_text("^", 105 + (encoderValue.pointerToValue - 4) * 20 , 110, COLOR_RED, COLOR_BLACK, 3);
 	}
 }
+
 void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 	uint16_t x, y;
 	if (ILI9341_TouchGetCoordinates(&x, &y)) {

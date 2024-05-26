@@ -30,3 +30,6 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic();
 uint8_t STM32_PLC_LCD_Call_One_Button_Logic(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
 #endif /* SRC_STM32_PLC_TOUCH_SCREEN_TOUCH_SCREEN_H_ */
+
+void printEncoderValue();
+void printPointerToValue();

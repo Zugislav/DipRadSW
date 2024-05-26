@@ -7,6 +7,7 @@
 
 #include "Touch_screen.h"
 #include "ILI9341.h"
+#include "ili9341_touch.h"
 #include "string.h"
 #include "message.h"
 #include "FreeRTOS.h"
@@ -23,39 +24,81 @@ extern EncoderValue encoderValue;
 #define KHZ_POINTER 6
 
 static void printInvalidInput(){
-	ILI9341_fill_rect(10, 20, 300, 100, COLOR_BLACK);
-	ILI9341_print_text("Invalid input", 15, 25, COLOR_WHITE, COLOR_BLACK, 3);
+	ILI9341_fill_rect(10, 20, 300, 65, COLOR_BLACK);
+	ILI9341_print_text("Invalid input", 85, 25, COLOR_WHITE, COLOR_BLACK, 2);
 }
 
-static void printEncoderUpdate(){
+static void printNewEncoderValue(){
 	// Print the encoder value
-	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
-	char str[5];
+	ILI9341_fill_rect(10, 10, 310, 70, COLOR_BLACK);
+	HAL_Delay(30);
+	char str[6] = {0};
 	for(int i = 0; i < 4; i++){
 		str[i] = encoderValue.value[i] + '0';
 	}
 	str[4] = '.';
-	char str2[7];
-	ILI9341_print_text(str, 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	char str2[7] = {0};
+	ILI9341_print_text(str, 50, 20, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
 	for(int i = 0; i < 6; i++){
 		str2[i] = encoderValue.value[i + 4] + '0';
 	}
-	ILI9341_print_text(str2, 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	ILI9341_print_text(str2, 130, 20, COLOR_WHITE, COLOR_BLACK, 3);
+	ILI9341_print_text("MHz", 240, 20, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
 }
 
-static void checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t freq, uint8_t numbers){
+static bool checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t freq, uint8_t numbers){
 	if(freq == GHZ_POINTER){
-		encoderValue.value[0] = inputValue[0];
-		if(dotPlace != 1 && numbers > 1){
-
+		if(dotPlace > 1)
+		{
+			printInvalidInput();
+			return false;
 		}
+		for(int i = 0; i < numbers; i++){
+			encoderValue.value[i] = inputValue[i];
+		}
+		return true;
 	}
 	if(freq == MHZ_POINTER){
-
+		if(dotPlace >= 4){
+			printInvalidInput();
+			return false;
+		}
+		if(dotPlace > 0){
+			for(int i = 0; i < dotPlace; i++){
+				encoderValue.value[4 - 1 - i] = *(inputValue + dotPlace - i - 1);
+			}
+			for(int i = 0; i < numbers - dotPlace; i++){
+				encoderValue.value[4 + i] = *(inputValue + i + dotPlace);
+			}
+		}
+		else if (numbers < 4){
+			for(int i = 0; i < numbers; i++){
+				encoderValue.value[4 - 1 - i] = *(inputValue + dotPlace - i - 1);
+			}
+		}
+		else printInvalidInput();
 	}
 	if(freq == KHZ_POINTER){
-
+		if(dotPlace >= 7){
+			printInvalidInput();
+			return false;
+		} 
+		if(dotPlace > 0){
+			for(int i = 0; i < dotPlace; i++){
+				encoderValue.value[7 - 1 - i] = *(inputValue + dotPlace - i - 1);
+			}
+			for(int i = 0; i < numbers - dotPlace; i++){
+				encoderValue.value[7 + i] = *(inputValue + i + dotPlace);
+			}	
+		}
+		else if (numbers < 4){
+			for(int i = 0; i < numbers; i++){
+				encoderValue.value[7 - 1 - i] = *(inputValue + dotPlace - i - 1);
+			}
+		}
+		else printInvalidInput();
 	}
 }
 
@@ -68,63 +111,95 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 	memset(encoderValue.value, 0, sizeof(encoderValue.value));
 	while (1) {
 		if (ILI9341_TouchGetCoordinates(&x, &y)) {
+			HAL_Delay(150);
 			/* Check which button we are pressing on */
-			if (x >= 253 && x <= 315 && y >= 115 && y <= 165){
+			if (x >= 253 && x <= 315 && y >= 70 && y <= 125){
 				//GHz button
-				checkInputValue(inputVariable, haveDot, GHZ_POINTER, k);
-				printEncoderUpdate();	
+				if(!checkInputValue(inputVariable, haveDot, GHZ_POINTER, k)){
+					memset(inputVariable, 0, 10);
+					k = 0;
+					haveDot = 0;
+					continue;
+				}
+				printNewEncoderValue();
+				osDelay(2000);
+				return 0;
 			}
-			else if (x >= 5 && x <= 67 && y >= 60 && y <= 115){
+			else if (x >= 253 && x <= 315 && y >= 125 && y <= 180){
 				//MHz button
-				checkInputValue(inputVariable, haveDot, MHZ_POINTER, k);
-				printEncoderUpdate();
+				if(!checkInputValue(inputVariable, haveDot, MHZ_POINTER, k)){
+					memset(inputVariable, 0, 10);
+					k = 0;
+					haveDot = 0;
+					continue;
+				}
+				printNewEncoderValue();
+				osDelay(2000);
+				return 0;
 			}
-			else if (x >= 5 && x <= 67 && y >= 5 && y <= 60){
+			else if (x >= 253 && x <= 315 && y >= 180 && y <= 235){
 				//kHz button
-				checkInputValue(inputVariable, haveDot, KHZ_POINTER, k);
-				printEncoderUpdate();
+				if(!checkInputValue(inputVariable, haveDot, KHZ_POINTER, k)){
+					memset(inputVariable, 0, 10);
+					k = 0;
+					haveDot = 0;
+					continue;
+				}
+				printNewEncoderValue();
+				osDelay(2000);
+				return 0;
 			}
-			else if (x >= 67 && x <= 129 && y >= 115 && y <= 165){
+			else if (x >= 67 && x <= 129 && y >= 70 && y <= 125){
 				//1 button
-				inputVariable[k++] = 1;
+				inputVariable[k] = 1;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 67 && x <= 129 && y >= 60 && y <= 115){
+			else if (x >= 67 && x <= 129 && y >= 125 && y <= 180){
 				//4 button
-				inputVariable[k++] = 4;
+				inputVariable[k] = 4;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 67 && x <= 129 && y >= 5 && y <= 60){
+			else if (x >= 67 && x <= 129 && y >= 180 && y <= 235){
 				//7 button
-				inputVariable[k++] = 7;
+				inputVariable[k] = 7;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 129 && x <= 191 && y >= 115 && y <= 165){
+			else if (x >= 129 && x <= 191 && y >= 70 && y <= 125){
 				//2 button
-				inputVariable[k++] = 2;
+				inputVariable[k] = 2;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 129 && x <= 191 && y >= 60 && y <= 115){
+			else if (x >= 129 && x <= 191 && y >= 125 && y <= 180){
 				//5 button
-				inputVariable[k++] = 5;
+				inputVariable[k] = 5;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 129 && x <= 191 && y >= 5 && y <= 60){
+			else if (x >= 129 && x <= 191 && y >= 180 && y <= 235){
 				//8 button
-				inputVariable[k++] = 8;
+				inputVariable[k] = 8;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 191 && x <= 253 && y >= 115 && y <= 165){
+			else if (x >= 191 && x <= 253 && y >= 70 && y <= 125){
 				//3 button
-				inputVariable[k++] = 3;
+				inputVariable[k] = 3;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 191 && x <= 253 && y >= 60 && y <= 115){
+			else if (x >= 191 && x <= 253 && y >= 125 && y <= 180){
 				//6 button
-				inputVariable[k++] = 6;
+				inputVariable[k] = 6;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 191 && x <= 253 && y >= 5 && y <= 60){
+			else if (x >= 191 && x <= 253 && y >= 180 && y <= 235){
 				//9 button
-				inputVariable[k++] = 9;
+				inputVariable[k] = 9;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 5 && x <= 67 && y >= 115 && y <= 165){
+			else if (x >= 5 && x <= 67 && y >= 70 && y <= 125){
 				//zero button
-				inputVariable[k++] = 0;
+				inputVariable[k] = 0;
+				k >= 9 ? printInvalidInput() : k++;
 			}
-			else if (x >= 191 && x <= 253 && y >= 60 && y <= 115){
+ 			else if (x >= 5 && x <= 67 && y >= 125 && y <= 180){
 				//point button
 				haveDot = k;
 			}

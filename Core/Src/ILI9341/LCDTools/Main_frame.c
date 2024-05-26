@@ -61,12 +61,12 @@ void  STM32_PLC_LCD_Show_Main_Frame(uint8_t *frame_id) {
 
 	/* Print frequency */
 	encoderValue.pointerToValue = 4;
-	encoderValue.value[1] = 1;
-	encoderValue.valueNormal = 100000000;
 	//EXTREMNO BITNO
-	ILI9341_print_text("0100.", 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	ILI9341_print_text("000000", 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	printEncoderValue();
+	// ILI9341_print_text("0100.", 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	// ILI9341_print_text("000000", 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	// ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
 	//ILI9341_print_text(str, 100, 80, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("^", 105, 110, COLOR_RED, COLOR_BLACK, 3);
+	// ILI9341_print_text("^", 105, 110, COLOR_RED, COLOR_BLACK, 3);
+	printPointerToValue();
 }

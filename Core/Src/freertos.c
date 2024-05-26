@@ -193,6 +193,7 @@ void StartDefaultTask(void *argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
+  encoderValue.value[1] = 1;
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)
