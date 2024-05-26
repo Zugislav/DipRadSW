@@ -2,7 +2,7 @@
 
 ## Description
 
-DipRadSW is a software project developed for custom PCB with STM32F407VGT for Masters degree on FER.
+DipRadSW is a software project developed for custom PCB with STM32F407VET for Masters degree on FER.
 
 ## Peripherals
 
@@ -22,7 +22,7 @@ DipRadSW is a software project developed for custom PCB with STM32F407VGT for Ma
 Provide step by step series of examples and explanations about how to get your development environment running.
 
 ```bash
-git clone https://github.com/yourusername/DipRadSW.git
+git clone https://github.com/Zugislav/DipRadSW.git
 cd DipRadSW
 ```
 
