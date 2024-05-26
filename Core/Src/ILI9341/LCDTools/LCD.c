@@ -137,23 +137,3 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	lcd.TOUCH_CS_PIN = LCD_CS_PIN;
 	lcd.CMD_Default = 0x84;
 }
-
-bool STM32_PLC_LCD_Is_Pressed(){
-	return TSC2046_isPressed(false);
-}
-
-void STM32_PLC_LCD_Calibrate_Touch() {
-	TSC2046_Calibrate();
-}
-
-void STM32_PLC_LCD_Get_Touch_Calibration_Parameters(float *Scale_X, float *Scale_Y, float *Bias_X, float *Bias_Y){
-	TSC2046_GetTouchCalibrationParameters(Scale_X, Scale_Y, Bias_X, Bias_Y);
-}
-
-void STM32_PLC_LCD_Set_Touch_Calibration_Parameters(float *Scale_X, float *Scale_Y, float *Bias_X, float *Bias_Y){
-	TSC2046_SetTouchCalibrationParameters(*Scale_X, *Scale_Y, *Bias_X, *Bias_Y);
-}
-
-void STM32_PLC_LCD_Get_Touch_Data() {
-	TSC2046_GetTouchData();
-}

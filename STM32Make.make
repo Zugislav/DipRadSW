@@ -48,7 +48,6 @@ Core/Src/encoder.c \
 Core/Src/freertos.c \
 Core/Src/gpio.c \
 Core/Src/main.c \
-Core/Src/ring_buffer.c \
 Core/Src/spi.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Core/Src/stm32f4xx_hal_timebase_tim.c \

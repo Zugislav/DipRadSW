@@ -28,8 +28,8 @@ static void printInvalidInput(){
 	ILI9341_print_text("Invalid input", 85, 25, COLOR_WHITE, COLOR_BLACK, 2);
 }
 
+// Print the encoder value
 static void printNewEncoderValue(){
-	// Print the encoder value
 	ILI9341_fill_rect(10, 10, 310, 70, COLOR_BLACK);
 	HAL_Delay(30);
 	char str[6] = {0};
@@ -72,13 +72,16 @@ static bool checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t fre
 			for(int i = 0; i < numbers - dotPlace; i++){
 				encoderValue.value[4 + i] = *(inputValue + i + dotPlace);
 			}
+			return true;
 		}
-		else if (numbers < 4){
+		else if (numbers < 4 && dotPlace == 0){
 			for(int i = 0; i < numbers; i++){
-				encoderValue.value[4 - 1 - i] = *(inputValue + dotPlace - i - 1);
+				encoderValue.value[4 - 1 - i] = *(inputValue + numbers - i - 1);
 			}
+			return true;
 		}
 		else printInvalidInput();
+		return false;
 	}
 	if(freq == KHZ_POINTER){
 		if(dotPlace >= 7){
@@ -91,15 +94,19 @@ static bool checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t fre
 			}
 			for(int i = 0; i < numbers - dotPlace; i++){
 				encoderValue.value[7 + i] = *(inputValue + i + dotPlace);
-			}	
-		}
-		else if (numbers < 4){
-			for(int i = 0; i < numbers; i++){
-				encoderValue.value[7 - 1 - i] = *(inputValue + dotPlace - i - 1);
 			}
+			return true;
+		}
+		else if (numbers < 4 && dotPlace == 0){
+			for(int i = 0; i < numbers; i++){
+				encoderValue.value[7 - 1 - i] = *(inputValue + numbers - i - 1);
+			}
+			return true;
 		}
 		else printInvalidInput();
+		return false;
 	}
+	return false;
 }
 
 uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
