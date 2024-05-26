@@ -44,186 +44,89 @@ static void printEncoderUpdate(){
 	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
 }
 
-static void InputNumber(bool hasDot, uint8_t k, uint8_t freqPointer, uint8_t value){
-	if (hasDot == false) {
-		// If we don't have a dot
-		if(freqPointer == 0){
-			if(k > 0){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				encoderValue.value[freqPointer] = value;
-			}
+static void checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t freq, uint8_t numbers){
+	if(freq == GHZ_POINTER){
+		encoderValue.value[0] = inputValue[0];
+		if(dotPlace != 1 && numbers > 1){
+
 		}
-		if(freqPointer == 3){
-			if(k > 3){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				//shift all the values to the left
-				for(int i = freqPointer; i >= 1; i++){
-					encoderValue.value[i - 1] = encoderValue.value[i];
-				}
-				encoderValue.value[freqPointer] = value;
-			}
-		}
-		if(freqPointer == 6){
-			if(k > 6){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				//shift all the values to the left
-				for(int i = freqPointer; i >= 1; i++){
-					encoderValue.value[i - 1] = encoderValue.value[i];
-				}
-				encoderValue.value[freqPointer] = value;
-			}
-		}
-	} else {
-		if(freqPointer == 0){
-			if(k > 9){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				for(int i = 9; i > freqPointer + 1; i--){
-					encoderValue.value[i] = encoderValue.value[i - 1];
-				}
-				encoderValue.value[freqPointer + 1] = value;
-			}
-		}
-		if(freqPointer == 3){
-			if(k > 7){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				//shift all the values to the right from dot to the end
-				for(int i = 9; i > freqPointer + 1; i--){
-					encoderValue.value[i] = encoderValue.value[i - 1];
-				}
-				encoderValue.value[freqPointer + 1] = value;
-			}
-		}
-		if(freqPointer == 6){
-			if(k > 3){
-				//print out text that input is invalid
-				printInvalidInput();
-			}
-			else{
-				//shift all the values to the right from dot to the end
-				for(int i = 9; i > freqPointer + 1; i--){
-					encoderValue.value[i] = encoderValue.value[i - 1];
-				}
-				encoderValue.value[freqPointer + 1] = value;
-			}
-		}
+	}
+	if(freq == MHZ_POINTER){
+
+	}
+	if(freq == KHZ_POINTER){
+
 	}
 }
 
 uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 
-	bool haveDot = false;
+	uint8_t haveDot = 0;
 	uint8_t k = 0;
-	uint8_t freqPointer = 3;
+	uint16_t x, y;
+	uint32_t inputVariable[10] = {0};
+	memset(encoderValue.value, 0, sizeof(encoderValue.value));
 	while (1) {
-		if (TSC2046_isPressed(true)) {
-			TSC2046_GetTouchData();
-			uint16_t X = lcd.myTsData.X;
-			uint16_t Y = lcd.myTsData.Y;
-
+		if (ILI9341_TouchGetCoordinates(&x, &y)) {
 			/* Check which button we are pressing on */
-			if (X >= 5 && X <= 67 && Y >= 115 && Y <= 165){
+			if (x >= 253 && x <= 315 && y >= 115 && y <= 165){
 				//GHz button
-				memset(encoderValue.value, 0, sizeof(encoderValue.value));
-				freqPointer = GHZ_POINTER;
-				k = 0;
+				checkInputValue(inputVariable, haveDot, GHZ_POINTER, k);
+				printEncoderUpdate();	
 			}
-			else if (X >= 5 && X <= 67 && Y >= 60 && Y <= 110){
+			else if (x >= 5 && x <= 67 && y >= 60 && y <= 115){
 				//MHz button
-				memset(encoderValue.value, 0, sizeof(encoderValue.value));
-				freqPointer = MHZ_POINTER;
-				k = 0;
+				checkInputValue(inputVariable, haveDot, MHZ_POINTER, k);
+				printEncoderUpdate();
 			}
-			else if (X >= 5 && X <= 67 && Y >= 5 && Y <= 60){
+			else if (x >= 5 && x <= 67 && y >= 5 && y <= 60){
 				//kHz button
-				memset(encoderValue.value, 0, sizeof(encoderValue.value));
-				freqPointer = KHZ_POINTER;
-				k = 0;
+				checkInputValue(inputVariable, haveDot, KHZ_POINTER, k);
+				printEncoderUpdate();
 			}
-			else if (X >= 67 && X <= 129 && Y >= 115 && Y <= 165){
+			else if (x >= 67 && x <= 129 && y >= 115 && y <= 165){
 				//1 button
-				InputNumber(haveDot, k, freqPointer, 1);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 1;
 			}
-			else if (X >= 67 && X <= 129 && Y >= 60 && Y <= 115){
+			else if (x >= 67 && x <= 129 && y >= 60 && y <= 115){
 				//4 button
-				InputNumber(haveDot, k, freqPointer, 4);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 4;
 			}
-			else if (X >= 67 && X <= 129 && Y >= 5 && Y <= 60){
+			else if (x >= 67 && x <= 129 && y >= 5 && y <= 60){
 				//7 button
-				InputNumber(haveDot, k, freqPointer, 7);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 7;
 			}
-			else if (X >= 129 && X <= 191 && Y >= 115 && Y <= 165){
+			else if (x >= 129 && x <= 191 && y >= 115 && y <= 165){
 				//2 button
-				InputNumber(haveDot, k, freqPointer, 2);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 2;
 			}
-			else if (X >= 129 && X <= 191 && Y >= 60 && Y <= 115){
+			else if (x >= 129 && x <= 191 && y >= 60 && y <= 115){
 				//5 button
-				InputNumber(haveDot, k, freqPointer, 5);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 5;
 			}
-			else if (X >= 129 && X <= 191 && Y >= 5 && Y <= 60){
+			else if (x >= 129 && x <= 191 && y >= 5 && y <= 60){
 				//8 button
-				InputNumber(haveDot, k, freqPointer, 8);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 8;
 			}
-			else if (X >= 191 && X <= 253 && Y >= 115 && Y <= 165){
+			else if (x >= 191 && x <= 253 && y >= 115 && y <= 165){
 				//3 button
-				InputNumber(haveDot, k, freqPointer, 3);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 3;
 			}
-			else if (X >= 191 && X <= 253 && Y >= 60 && Y <= 115){
+			else if (x >= 191 && x <= 253 && y >= 60 && y <= 115){
 				//6 button
-				InputNumber(haveDot, k, freqPointer, 6);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 6;
 			}
-			else if (X >= 191 && X <= 253 && Y >= 5 && Y <= 60){
+			else if (x >= 191 && x <= 253 && y >= 5 && y <= 60){
 				//9 button
-				InputNumber(haveDot, k, freqPointer, 9);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 9;
 			}
-			else if (X >= 191 && X <= 253 && Y >= 115 && Y <= 165){
+			else if (x >= 5 && x <= 67 && y >= 115 && y <= 165){
 				//zero button
-				InputNumber(haveDot, k, freqPointer, 0);
-				printEncoderUpdate();
-				k++;
+				inputVariable[k++] = 0;
 			}
-			else if (X >= 191 && X <= 253 && Y >= 60 && Y <= 115){
+			else if (x >= 191 && x <= 253 && y >= 60 && y <= 115){
 				//point button
-				if(haveDot == false){
-					haveDot = true;
-					k = 0;
-				}
-			}
-			else if (X >= 191 && X <= 253 && Y >= 5 && Y <= 60){
-				//ENTER button
-				return 0;
+				haveDot = k;
 			}
 		}
 	}

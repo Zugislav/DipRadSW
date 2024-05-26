@@ -28,18 +28,21 @@ static uint32_t buttonValue = 0;
 static void printEncoderValue(){
 	// Print the encoder value
 	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
-	char str[5];
+	HAL_Delay(30);
+	char str[6] = {0};
 	for(int i = 0; i < 4; i++){
 		str[i] = encoderValue.value[i] + '0';
 	}
 	str[4] = '.';
-	char str2[7];
+	char str2[7] = {0};
 	ILI9341_print_text(str, 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
 	for(int i = 0; i < 6; i++){
 		str2[i] = encoderValue.value[i + 4] + '0';
 	}
 	ILI9341_print_text(str2, 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
 	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
+	HAL_Delay(30);
 }
 
 static void LevelAllRightOfPointerToZero(){
@@ -48,6 +51,13 @@ static void LevelAllRightOfPointerToZero(){
 		encoderValue.value[i] = 0;
 	}
 	printEncoderValue();
+}
+static uint32_t powersOfTen(uint32_t power){
+	uint32_t powersOfTen = 1;
+	for(int i = 0; i < power; i++){
+		powersOfTen *= 10;
+	}
+	return powersOfTen;
 }
 
 static void updateEncoderValue(int16_t difference) {
@@ -80,18 +90,18 @@ static void updateEncoderValue(int16_t difference) {
 	} 
 	else if(difference < 0){
 			// Handle borrowing (if needed)
-			uint8_t borrow = 0;  // Flag to indicate borrowing
+			int8_t borrow = -1;  // Flag to indicate borrowing
 			uint16_t value = encoderValue.value[encoderValue.pointerToValue - 1];  // Temporary variable to store the value
-			for (int j = encoderValue.pointerToValue - 1; j > 1; j--){
+			for (int j = encoderValue.pointerToValue - 1; j >= 1; j--){
 				// Perform subtraction and handle borrowing
 				//find the first number that is bigger then zero
 				if(-difference > value){
 					//find the next significant value that is bigger then zero
 					if(encoderValue.value[j - 1] > 0){
-						value += encoderValue.value[j - 1] * 10;
+						value += encoderValue.value[j - 1] * powersOfTen((encoderValue.pointerToValue - j));
 							if(value > -difference){
 								value += difference;
-								borrow = j;
+								borrow = j - 1;
 								break;
 							}
 					}
@@ -101,26 +111,25 @@ static void updateEncoderValue(int16_t difference) {
 					break;
 				}
 			}
-			if(borrow > 0){
+			if(borrow >= 0){
 				//handle borrowing
 				uint8_t tmpArr[10] = {0};
+				uint8_t tmp = 0;
 				for(int i = 0; i < 10; i++){
 					tmpArr[i] = value % 10;
 					value /= 10;
 					if(value == 0) break;
+					tmp++;
 				}
-				uint8_t tmp = 0;
-				for(int j = borrow; j >= 0; j--){
-					encoderValue.value[j] = tmpArr[tmp++];
+				encoderValue.value[borrow]--;
+				for(int j = borrow + 1; j <= encoderValue.pointerToValue - 1; j++){
+					encoderValue.value[j] = tmpArr[tmp--];
 				}
 			}
 			else{
-				//there where no bigger values so we will set all the values right of pointer to 9
+				//there where no bigger values so we will set all the values right of pointer to 0
 				for(int i = 0; i < encoderValue.pointerToValue; i++){
 					encoderValue.value[i] = 0;
-				}
-				for(int i = encoderValue.pointerToValue; i < 10; i++){
-					encoderValue.value[i] = 9;
 				}
 			}
 		}
@@ -168,7 +177,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 	}
 	buttonValue = 0;
 	//wait for the buttons to be pressed (left, right, keyboard and level)
-	if(xTaskNotifyWait(0, ULONG_MAX, &buttonValue, 100) == pdTRUE)
+	if(xTaskNotifyWait(0, ULONG_MAX, &buttonValue, 30) == pdTRUE)
     {
 		switch(buttonValue){
 			case BUTTON3_IRQ:
@@ -195,7 +204,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		}
     }
 	encoderDiff = 0;
-	if(xQueueReceive(encoderValueHandle, &encoderDiff, 100) == pdTRUE)
+	if(xQueueReceive(encoderValueHandle, &encoderDiff, 30) == pdTRUE)
 	{
 		updateEncoderValue(encoderDiff);
 		//now update the value on screen

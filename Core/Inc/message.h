@@ -54,6 +54,7 @@ typedef struct{
   uint32_t value[10];
   uint8_t len;
   uint8_t pointerToValue;
+  uint64_t valueNormal;
 }EncoderValue;
 
 #ifdef __cplusplus

@@ -223,7 +223,7 @@ void LCDTask(void *argument)
   {
     osDelay(1);
     STM32_PLC_LCD_Call_Main_Logic(&frame_id);
-    osDelay(50);
+    osDelay(10);
   }
   /* USER CODE END LCDTask */
 }
@@ -267,7 +267,7 @@ for (;;) {
     }
 
     firstValue = difference;
-    osDelay(100);
+    osDelay(10);
   }
   /* USER CODE END EncoderTask */
 }
@@ -293,7 +293,7 @@ void ButtonTask(void *argument)
       ButtonProcess(uValue);
       //in buttonHandle also set some thing to have it displaied on the LCD
     }
-    osDelay(1);
+    osDelay(50);
   }
   /* USER CODE END ButtonTask */
 }

@@ -32,7 +32,6 @@ extern osMutexId_t printMutexHandle;
 static void printSerialOut(uint8_t *txt){
   //print out at uart1 and uart4 out
   uint16_t textLen = strlen(txt);
-    HAL_UART_Transmit(&huart4, txt, textLen, 100);
     HAL_UART_Transmit(&huart1, txt, textLen, 100);
     return;
 }

@@ -136,15 +136,6 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	lcd.TOUCH_CS_PORT = LCD_CS_PORT;
 	lcd.TOUCH_CS_PIN = LCD_CS_PIN;
 	lcd.CMD_Default = 0x84;
-
-	// /* Set the scaling */
-	// float Scale_X, Scale_Y, Bias_X, Bias_Y;
-	// TSC2046_SetTouchCalibrationParameters(1.0, 1.0, 1.0, 0.5);
-
-	// /* This will only run if we press the LCD screen */
-	// STM32_PLC_LCD_Show_Touch_Screen_Calibration_Message_Frame();
-	// HAL_Delay(2000);
-	// STM32_PLC_LCD_Calibrate_Touch();
 }
 
 bool STM32_PLC_LCD_Is_Pressed(){
