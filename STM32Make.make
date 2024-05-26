@@ -38,6 +38,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 Core/Src/ILI9341/HardwareControl/ILI9341.c \
 Core/Src/ILI9341/HardwareControl/TSC2046.c \
+Core/Src/ILI9341/HardwareControl/ili9341_touch.c \
 Core/Src/ILI9341/LCDTools/LCD.c \
 Core/Src/ILI9341/LCDTools/Main_frame.c \
 Core/Src/ILI9341/LCDTools/Main_logic.c \

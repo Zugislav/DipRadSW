@@ -269,8 +269,8 @@ for (;;) {
     firstValue = difference;
     osDelay(100);
   }
-}
   /* USER CODE END EncoderTask */
+}
 
 /* USER CODE BEGIN Header_ButtonTask */
 /**

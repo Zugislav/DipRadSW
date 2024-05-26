@@ -16,7 +16,7 @@
 #include "limits.h"
 #include "string.h"
 #include "math.h"
-
+#include "ili9341_touch.h"
 
 extern EncoderValue encoderValue;
 extern osMessageQueueId_t mainQueueHandle;
@@ -141,28 +141,26 @@ static void printPointerToValue(){
 	}
 }
 void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
-	if (TSC2046_isPressed()) {
-		TSC2046_GetTouchData();
-		uint16_t X = lcd.myTsData.X;
-		uint16_t Y = lcd.myTsData.Y;
+	uint16_t x, y;
+	if (ILI9341_TouchGetCoordinates(&x, &y)) {
 		/* Check which button we are pressing on */
-		if (X >= 5 && X <= 83 && Y >= 155 && Y <= 235) {            /* First icon */
+		if (x >= 5 && x <= 83 && y >= 155 && y <= 235) {            /* First icon */
 			//go left
 			ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 			encoderValue.pointerToValue--;
 			printPointerToValue();
 		} 
-		else if (X >= 83 && X <= 160 && Y >= 155 && Y <= 235) {			
+		else if (x >= 83 && x <= 160 && y >= 155 && y <= 235) {			
 			//go right
 			ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 			encoderValue.pointerToValue++;
 			printPointerToValue();
 		}
-		else if (X >= 160 && X <= 238 && Y >= 155 && Y <= 235) {
+		else if (x >= 160 && x <= 238 && y >= 155 && y <= 235) {
 			//LEVEL all
 			LevelAllRightOfPointerToZero();
 		} 
-		else if (X >= 238 && X <= 310 && Y >= 155 && Y <= 235) {
+		else if (x >= 238 && x <= 310 && y >= 155 && y <= 235) {
 			//Keyboard
 			STM32_PLC_LCD_Show_Numpad_Frame();
 			STM32_PLC_LCD_Show_Main_Frame(frame_id);
