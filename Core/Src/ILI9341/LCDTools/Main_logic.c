@@ -19,6 +19,9 @@
 #include "ili9341_touch.h"
 #include "usart.h"
 
+#define FS 50000000			//fs za formulu koja pretvara odabranu frekvenciju u oblic pogodan za prijenos USART-om na SDR
+#define N 32
+
 extern EncoderValue encoderValue;
 extern osMessageQueueId_t mainQueueHandle;
 extern osMessageQueueId_t encoderValueHandle;
@@ -147,11 +150,15 @@ void calculateSendFrequency(){
 	}
 	//send the frequency to the radio
 	uint8_t message[4] = {0};
-	message[3] = (frequency >> 24) & 0xFF;
-	message[2] = (frequency >> 16) & 0xFF;
-	message[1] = (frequency >> 8) & 0xFF;
-	message[0] = frequency & 0xFF;
-	HAL_UART_Transmit(&huart4, message, 4, 100);
+	uint32_t delta = floor(frequency * pow(2,N) / FS + 0.5);
+
+	for(int i = 0; i < 4; i++){
+		message[i] = (delta >> (i * 8));
+	}
+	for(int i = 0; i < 4; i++){
+		while (!(UART4->SR & 0x0080));
+		UART4->DR = (message[i] & 0xFF);
+	}
 }
 
 void printEncoderValue(){
@@ -254,4 +261,6 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		calculateSendFrequency();
 		//update value of the encoder
 	}
+	calculateSendFrequency();
+
 }

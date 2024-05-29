@@ -18,13 +18,13 @@ uint8_t STM32_PLC_LCD_Show_Numpad_Frame() {
 		|			xxxx.xxxxxx MHz			  |
 		|_____________________________________|
 		|	   |      |		  |		  |       |
-		|  0   |  1   |   2   |   3	  |  GHz  |
+		| GHz  |  1   |   2   |   3	  |  0    |
 		|______|______|_______|_______|_______|
 		|	   |      |		  |		  |       |
-		|  .   |  4   |   5   |   6	  |  MHz  |
+		| MHz  |  4   |   5   |   6	  |  .    |
 		|______|______|_______|_______|_______|
 		|	   |      |		  |		  |       |
-		|      |  7   | 8     |   9	  | kHz   |
+		| kHz  |  7   | 8     |   9	  |       |
 		|______|______|_______|_______|_______|
 
 	*/
@@ -49,9 +49,9 @@ uint8_t STM32_PLC_LCD_Show_Numpad_Frame() {
 	ILI9341_print_text(str, 70, 35, COLOR_WHITE, COLOR_BLACK, 2);
 
 	/* Print buttons */
-	ILI9341_print_text("0", 25, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text(".", 25, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	//ILI9341_print_text("", 25, 195, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("GHz", 25, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("MHz", 25, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("kHz", 25, 195, COLOR_WHITE, COLOR_BLACK, 2);
 
 	/* Print buttons */
 	ILI9341_print_text("1", 87, 85, COLOR_WHITE, COLOR_BLACK, 2);
@@ -67,9 +67,9 @@ uint8_t STM32_PLC_LCD_Show_Numpad_Frame() {
 	ILI9341_print_text("9", 211, 195, COLOR_WHITE, COLOR_BLACK, 2);
 
 
-	ILI9341_print_text("GHz", 275, 85, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("MHz", 275, 140, COLOR_WHITE, COLOR_BLACK, 2);
-	ILI9341_print_text("kHz", 270, 195, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("0", 275, 85, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text(".", 275, 140, COLOR_WHITE, COLOR_BLACK, 2);
+	//ILI9341_print_text("kHz", 270, 195, COLOR_WHITE, COLOR_BLACK, 2);
 
 	return STM32_PLC_LCD_Call_Numpad_Logic();
 }

@@ -48,6 +48,26 @@ static void printNewEncoderValue(){
 	HAL_Delay(30);
 }
 
+// Print the encoder value
+static void printInputValue(uint32_t inputValue[]){
+	ILI9341_fill_rect(10, 10, 310, 50, COLOR_BLACK);
+	HAL_Delay(10);
+	char str[6] = {0};
+	for(int i = 0; i < 4; i++){
+		str[i] = inputValue[i] + '0';
+	}
+	str[4] = '.';
+	char str2[7] = {0};
+	ILI9341_print_text(str, 30, 40, COLOR_WHITE, COLOR_BLACK, 2);
+	HAL_Delay(10);
+	for(int i = 0; i < 6; i++){
+		str2[i] = inputValue[i + 4] + '0';
+	}
+	ILI9341_print_text(str2, 90, 40, COLOR_WHITE, COLOR_BLACK, 2);
+	ILI9341_print_text("MHz", 150, 40, COLOR_WHITE, COLOR_BLACK, 2);
+	HAL_Delay(10);
+}
+
 static bool checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t freq, uint8_t numbers){
 	if(freq == GHZ_POINTER){
 		if(dotPlace > 1)
@@ -120,7 +140,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 		if (ILI9341_TouchGetCoordinates(&x, &y)) {
 			HAL_Delay(150);
 			/* Check which button we are pressing on */
-			if (x >= 253 && x <= 315 && y >= 70 && y <= 125){
+			if (x >= 5 && x <= 67 && y >= 70 && y <= 125){
 				//GHz button
 				if(!checkInputValue(inputVariable, haveDot, GHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -132,7 +152,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				osDelay(2000);
 				return 0;
 			}
-			else if (x >= 253 && x <= 315 && y >= 125 && y <= 180){
+			else if (x >= 5 && x <= 67 && y >= 125 && y <= 180){
 				//MHz button
 				if(!checkInputValue(inputVariable, haveDot, MHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -144,7 +164,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				osDelay(2000);
 				return 0;
 			}
-			else if (x >= 253 && x <= 315 && y >= 180 && y <= 235){
+			else if (x >= 5 && x <= 67 && y >= 180 && y <= 235){
 				//kHz button
 				if(!checkInputValue(inputVariable, haveDot, KHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -160,53 +180,63 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				//1 button
 				inputVariable[k] = 1;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 67 && x <= 129 && y >= 125 && y <= 180){
 				//4 button
 				inputVariable[k] = 4;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 67 && x <= 129 && y >= 180 && y <= 235){
 				//7 button
 				inputVariable[k] = 7;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 129 && x <= 191 && y >= 70 && y <= 125){
 				//2 button
 				inputVariable[k] = 2;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 129 && x <= 191 && y >= 125 && y <= 180){
 				//5 button
 				inputVariable[k] = 5;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 129 && x <= 191 && y >= 180 && y <= 235){
 				//8 button
 				inputVariable[k] = 8;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 191 && x <= 253 && y >= 70 && y <= 125){
 				//3 button
 				inputVariable[k] = 3;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 191 && x <= 253 && y >= 125 && y <= 180){
 				//6 button
 				inputVariable[k] = 6;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
 			else if (x >= 191 && x <= 253 && y >= 180 && y <= 235){
 				//9 button
 				inputVariable[k] = 9;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
-			else if (x >= 5 && x <= 67 && y >= 70 && y <= 125){
+			else if (x >= 253 && x <= 315 && y >= 70 && y <= 125){
 				//zero button
 				inputVariable[k] = 0;
 				k >= 9 ? printInvalidInput() : k++;
+				printInputValue(inputVariable);
 			}
- 			else if (x >= 5 && x <= 67 && y >= 125 && y <= 180){
+ 			else if (x >= 253 && x <= 315 && y >= 125 && y <= 180){
 				//point button
 				haveDot = k;
 			}
