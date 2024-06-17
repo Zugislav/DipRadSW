@@ -214,9 +214,9 @@ void StartDefaultTask(void *argument)
 void LCDTask(void *argument)
 {
   /* USER CODE BEGIN LCDTask */
-  STM32_PLC_LCD(&hspi1, &hspi3, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
+  STM32_PLC_LCD(&hspi1, LCD_CS_GPIO_Port, LCD_CS_Pin, DC_RS_GPIO_Port, DC_RS_Pin, RST_GPIO_Port, RST_Pin);
   /* Infinite loop */
-
+  encoderValue.value[1] = 1;
   uint8_t frame_id = 0;
   STM32_PLC_LCD_Show_Main_Frame(&frame_id);
 

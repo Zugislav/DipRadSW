@@ -7,7 +7,7 @@
 
 #include "Touch_screen.h"
 #include "ILI9341.h"
-#include "ili9341_touch.h"
+#include "ILI9341_touch.h"
 #include "string.h"
 #include "message.h"
 #include "FreeRTOS.h"
@@ -72,6 +72,10 @@ static bool checkInputValue(uint32_t inputValue[], uint8_t dotPlace, uint8_t fre
 	if(freq == GHZ_POINTER){
 		if(dotPlace > 1)
 		{
+			printInvalidInput();
+			return false;
+		}
+		if(inputValue[0] > 4){
 			printInvalidInput();
 			return false;
 		}
@@ -140,7 +144,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 		if (ILI9341_TouchGetCoordinates(&x, &y)) {
 			HAL_Delay(150);
 			/* Check which button we are pressing on */
-			if (x >= 5 && x <= 67 && y >= 70 && y <= 125){
+			if (x >= 253 && x <= 315 && y >= 70 && y <= 125){
 				//GHz button
 				if(!checkInputValue(inputVariable, haveDot, GHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -150,9 +154,10 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				}
 				printNewEncoderValue();
 				osDelay(2000);
+				HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, GPIO_PIN_RESET);
 				return 0;
 			}
-			else if (x >= 5 && x <= 67 && y >= 125 && y <= 180){
+			else if (x >= 253 && x <= 315 && y >= 125 && y <= 180){
 				//MHz button
 				if(!checkInputValue(inputVariable, haveDot, MHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -162,9 +167,10 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				}
 				printNewEncoderValue();
 				osDelay(2000);
+				HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, GPIO_PIN_RESET);
 				return 0;
 			}
-			else if (x >= 5 && x <= 67 && y >= 180 && y <= 235){
+			else if (x >= 253 && x <= 315 && y >= 180 && y <= 235){
 				//kHz button
 				if(!checkInputValue(inputVariable, haveDot, KHZ_POINTER, k)){
 					memset(inputVariable, 0, 10);
@@ -174,6 +180,7 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				}
 				printNewEncoderValue();
 				osDelay(2000);
+				HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, GPIO_PIN_RESET);
 				return 0;
 			}
 			else if (x >= 67 && x <= 129 && y >= 70 && y <= 125){
@@ -230,13 +237,13 @@ uint8_t STM32_PLC_LCD_Call_Numpad_Logic() {
 				k >= 9 ? printInvalidInput() : k++;
 				printInputValue(inputVariable);
 			}
-			else if (x >= 253 && x <= 315 && y >= 70 && y <= 125){
+			else if (x >= 5 && x <= 67 && y >= 70 && y <= 125){
 				//zero button
 				inputVariable[k] = 0;
 				k >= 9 ? printInvalidInput() : k++;
 				printInputValue(inputVariable);
 			}
- 			else if (x >= 253 && x <= 315 && y >= 125 && y <= 180){
+ 			else if (x >= 5 && x <= 67 && y >= 125 && y <= 180){
 				//point button
 				haveDot = k;
 			}

@@ -1,4 +1,3 @@
-/* vim: set ai et ts=4 sw=4: */
 #ifndef __ILI9341_TOUCH_H__
 #define __ILI9341_TOUCH_H__
 
@@ -11,9 +10,9 @@
 #define ILI9341_TOUCH_SPI_PORT hspi3
 extern SPI_HandleTypeDef ILI9341_TOUCH_SPI_PORT;
 
-#define ILI9341_TOUCH_IRQ_Pin       T_IRQ_Pin // Arduino D5
+#define ILI9341_TOUCH_IRQ_Pin       T_IRQ_Pin
 #define ILI9341_TOUCH_IRQ_GPIO_Port T_IRQ_GPIO_Port
-#define ILI9341_TOUCH_CS_Pin        LCD_CS_Pin // Arduino D2
+#define ILI9341_TOUCH_CS_Pin        LCD_CS_Pin
 #define ILI9341_TOUCH_CS_GPIO_Port  LCD_CS_GPIO_Port
 
 // change depending on screen orientation

@@ -16,7 +16,7 @@
 #include "limits.h"
 #include "string.h"
 #include "math.h"
-#include "ili9341_touch.h"
+#include "ILI9341_touch.h"
 #include "usart.h"
 
 #define FS 50000000			//fs za formulu koja pretvara odabranu frekvenciju u oblic pogodan za prijenos USART-om na SDR
@@ -93,6 +93,7 @@ static void updateEncoderValue(int16_t difference) {
 				}
 				else if(-difference <= value){
 					encoderValue.value[encoderValue.pointerToValue - 1] += difference;
+					borrow = -2;
 					break;
 				}
 			}
@@ -111,8 +112,8 @@ static void updateEncoderValue(int16_t difference) {
 					encoderValue.value[j] = tmpArr[tmp--];
 				}
 			}
-			else{
-				//there where no bigger values so we will set all the values right of pointer to 0
+			if(borrow == -1){
+				//if there is no borrowing we will set the value to 0
 				for(int i = 0; i < encoderValue.pointerToValue; i++){
 					encoderValue.value[i] = 0;
 				}
@@ -164,7 +165,7 @@ void calculateSendFrequency(){
 void printEncoderValue(){
 	// Print the encoder value
 	ILI9341_fill_rect(10, 70, 310, 110, COLOR_BLACK);
-	HAL_Delay(30);
+	osDelay(10);
 	char str[6] = {0};
 	for(int i = 0; i < 4; i++){
 		str[i] = encoderValue.value[i] + '0';
@@ -172,13 +173,13 @@ void printEncoderValue(){
 	str[4] = '.';
 	char str2[7] = {0};
 	ILI9341_print_text(str, 50, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	HAL_Delay(30);
+	osDelay(10);
 	for(int i = 0; i < 6; i++){
 		str2[i] = encoderValue.value[i + 4] + '0';
 	}
 	ILI9341_print_text(str2, 130, 80, COLOR_WHITE, COLOR_BLACK, 3);
 	ILI9341_print_text("MHz", 240, 80, COLOR_WHITE, COLOR_BLACK, 3);
-	HAL_Delay(30);
+	osDelay(10);
 }
 
 void printPointerToValue(){
@@ -222,7 +223,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 	}
 	buttonValue = 0;
 	//wait for the buttons to be pressed (left, right, keyboard and level)
-	if(xTaskNotifyWait(0, ULONG_MAX, &buttonValue, 30) == pdTRUE)
+	if(xTaskNotifyWait(0, ULONG_MAX, &buttonValue, 10) == pdTRUE)
     {
 		switch(buttonValue){
 			case BUTTON3_IRQ:
@@ -230,17 +231,20 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 				ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 				encoderValue.pointerToValue--;
 				printPointerToValue();
+				HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET);
 				break;
 			case BUTTON4_IRQ:
 				//LEVEL all right of the pointer to 0
 				LevelAllRightOfPointerToZero();
 				calculateSendFrequency();
+				HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
 				break;
 			case BUTTON5_IRQ:
 				//pointer goes to right
 				ILI9341_fill_rect(10, 110, 310, 130, COLOR_BLACK);
 				encoderValue.pointerToValue++;
 				printPointerToValue();
+				HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, GPIO_PIN_RESET);
 				break;
 			case BUTTON6_IRQ:
 				//KEYBOARD call
@@ -252,7 +256,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		}
     }
 	encoderDiff = 0;
-	if(xQueueReceive(encoderValueHandle, &encoderDiff, 30) == pdTRUE)
+	if(xQueueReceive(encoderValueHandle, &encoderDiff, 1) == pdTRUE)
 	{
 		updateEncoderValue(encoderDiff);
 		//now update the value on screen

@@ -23,7 +23,7 @@ extern SPI_HandleTypeDef hspi1;
  * First bit = MBS first
  * CPOL = Low
  */
-void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_TypeDef *LCD_CS_PORT, uint16_t LCD_CS_PIN, GPIO_TypeDef *LCD_DC_PORT, uint16_t LCD_DC_PIN, GPIO_TypeDef *LCD_RST_PORT, uint16_t LCD_RST_PIN){
+void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, GPIO_TypeDef *LCD_CS_PORT, uint16_t LCD_CS_PIN, GPIO_TypeDef *LCD_DC_PORT, uint16_t LCD_DC_PIN, GPIO_TypeDef *LCD_RST_PORT, uint16_t LCD_RST_PIN){
 	
 	memset(&encoderValue, 0, sizeof(EncoderValue));
 	encoderValue.len = 10;
@@ -124,16 +124,4 @@ void STM32_PLC_LCD(SPI_HandleTypeDef *lcdSpi, SPI_HandleTypeDef *touchSpi, GPIO_
 	HAL_Delay(100);
 	ILI9341_send_command(ILI9341_GRAM);                                      /* memory write */
 	HAL_Delay(5);
-
-	/* Touch Screen SPI */
-	TS_TOUCH_RAW_Def myRawTouchDef = {0};
-	TS_TOUCH_RAW_Def localRawTouch = {0};
-	TS_CALIBRATE_Def myTS_Calibrate = {0};
-	lcd.myTS_Calibrate = myTS_Calibrate;
-	lcd.localRawTouch = localRawTouch;
-	lcd.myRawTouchDef = myRawTouchDef;
-	lcd.touchSpi = touchSpi;
-	lcd.TOUCH_CS_PORT = LCD_CS_PORT;
-	lcd.TOUCH_CS_PIN = LCD_CS_PIN;
-	lcd.CMD_Default = 0x84;
 }
