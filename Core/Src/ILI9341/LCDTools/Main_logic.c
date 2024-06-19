@@ -256,7 +256,7 @@ void STM32_PLC_LCD_Call_Main_Logic(uint8_t *frame_id) {
 		}
     }
 	encoderDiff = 0;
-	if(xQueueReceive(encoderValueHandle, &encoderDiff, 1) == pdTRUE)
+	if(xQueueReceive(encoderValueHandle, &encoderDiff, 10) == pdTRUE)
 	{
 		updateEncoderValue(encoderDiff);
 		//now update the value on screen
